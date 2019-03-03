@@ -86,6 +86,7 @@ public class Location_Activity_History extends Activity {
         dataModels.add(new HistoryListDataModel(12345, 12345, 123, R.drawable.icon_activity_communicate, "actiity6", R.drawable.icon_activity_communicate, "place6"));*/
         //endregion
 
+
         Adapters.HistoryListAdapter adapter = new Adapters.HistoryListAdapter(Location_Activity_History.this, dataModels, isDetailed);
         listView = findViewById(R.id.list);
         listView.setAdapter(adapter); //set initialized adapter
