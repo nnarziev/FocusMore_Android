@@ -1,0 +1,49 @@
+<resources>
+    <!-- REST API Server URLs -->
+    <string name="server_ip">143.248.90.57</string> <!-- SR PC IP: 165.246.43.97 -->
+    <string name="url_server">http://%1$s/server.php</string>
+
+    <string name="app_name">잠금화면 실험 앱</string>
+    <string name="action_settings">Settings</string>
+    <string name="dummy">dummy</string>
+    <string name="question_location">현재 장조는 어디입니까?</string>
+    <string name="question_activity">기록된 시간 동안 주로 무슨 활동을 했습니까?</string>
+    <string name="question_disturbance">스마트폰 사용은 기록된 시간 동안의 활동을 방해한다고 생각하십니까?</string>
+    <string name="yes">네</string>
+    <string name="no">아니요</string>
+    <string name="save">Save</string>
+    <string name="update">Update</string>
+    <string name="cancel">Cancel</string>
+    <string name="choose_icon">Choose icon:</string>
+    <string name="title_activity_location___summary">Location_Activity_Summary</string>
+    <string name="prev_day">previous day</string>
+    <string name="year">year</string>
+    <string name="month">month</string>
+    <string name="next_day">next day</string>
+    <string name="summary">Summary</string>
+    <string name="detailed">Detailed</string>
+    <string name="day">day</string>
+    <string name="date">date</string>
+    <string name="accumulated_time">accumulated time</string>
+    <string name="recorded_static_activity">기록된 정적인 활동</string>
+    <string name="activity">활동</string>
+    <string name="plcae">장소</string>
+    <string name="start">start</string>
+    <string name="end">end</string>
+    <string name="time">time</string>
+    <string name="duration">Duration</string>
+    <string name="icon">icon</string>
+    <string name="title_activity_sign_in">SignInActivity</string>
+    <string name="title_activity_sign_up">SignUpActivity</string>
+    <string name="sign_up">Sign up</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="sign_up_now">Sign up now</string>
+    <string name="sign_in">Sign In</string>
+    <string name="not_a_member_yet">Not a member yet?</string>
+    <string name="etc">ETC</string>
+    <string name="history_esm">history (ESM)</string>
+    <string name="db_reinit">DB re-init</string>
+
+</resources>

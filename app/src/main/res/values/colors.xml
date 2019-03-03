@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#26ae90</color>
+    <color name="colorPrimaryDark">#1b443b</color>
+    <color name="colorAccent">#b71c1c</color>
+
+
+    <color name="btn_checked_color">#ccc</color>
+    <color name="btn_unchecked_color">#fff</color>
+
+
+</resources>

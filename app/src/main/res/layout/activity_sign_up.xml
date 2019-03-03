@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/bg_main"
+    tools:context=".SignUpActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sign_up"
+        android:textAllCaps="true"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="40sp" />
+
+    <EditText
+        android:id="@+id/txt_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginTop="10dp"
+        android:background="#fff"
+        android:hint="@string/email"
+        android:inputType="textEmailAddress"
+        android:padding="13dp"
+        android:scrollHorizontally="true"
+        android:textColor="@color/colorPrimaryDark"
+        android:textColorHint="@android:color/darker_gray" />
+
+    <EditText
+        android:id="@+id/txt_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginTop="10dp"
+        android:background="#fff"
+        android:hint="@string/password"
+        android:inputType="textPassword"
+        android:padding="13dp"
+        android:textColor="@color/colorPrimaryDark"
+        android:textColorHint="@android:color/darker_gray" />
+
+    <EditText
+        android:id="@+id/txt_conf_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginTop="10dp"
+        android:background="#fff"
+        android:hint="@string/confirm_password"
+        android:inputType="textPassword"
+        android:padding="13dp"
+        android:scrollHorizontally="true"
+        android:textColor="@color/colorPrimaryDark"
+        android:textColorHint="@android:color/darker_gray" />
+
+    <Button
+        android:id="@+id/btn_register"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginTop="30dp"
+        android:background="@android:color/white"
+        android:onClick="registerClick"
+        android:padding="18dp"
+        android:text="@string/sign_up_now"
+        android:textColor="@color/colorPrimaryDark" />
+
+</LinearLayout>
