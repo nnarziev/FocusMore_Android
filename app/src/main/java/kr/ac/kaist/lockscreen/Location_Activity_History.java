@@ -87,6 +87,7 @@ public class Location_Activity_History extends Activity {
         //endregion
 
 
+
         Adapters.HistoryListAdapter adapter = new Adapters.HistoryListAdapter(Location_Activity_History.this, dataModels, isDetailed);
         listView = findViewById(R.id.list);
         listView.setAdapter(adapter); //set initialized adapter
