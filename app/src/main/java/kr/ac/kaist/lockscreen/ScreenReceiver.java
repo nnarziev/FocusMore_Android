@@ -3,6 +3,7 @@ package kr.ac.kaist.lockscreen;
 //화면이 켜졌을 때 ACTION_SCREEN_OFF intent 를 받는다.
 
 import android.app.Activity;
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +11,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.net.MalformedURLException;
 import java.util.Calendar;
 
 
@@ -19,11 +21,13 @@ public class ScreenReceiver extends BroadcastReceiver {
     private DatabaseHelper db;
     protected SharedPreferences sharedPref = null;
     protected SharedPreferences.Editor sharedPrefEditor = null;
+    private Context context;
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(Context con, Intent intent) {
 
         db = new DatabaseHelper(context);
+        context = con;
 
         sharedPref = context.getSharedPreferences("Modes", Activity.MODE_PRIVATE);
         sharedPrefEditor = sharedPref.edit();
@@ -90,29 +94,99 @@ public class ScreenReceiver extends BroadcastReceiver {
             calStart.setTimeInMillis(start_time);
             calEnd.setTimeInMillis(end_time);
 
-            boolean isInserted = db.insertRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) (duration / 1000), (short) 1, 0, "", 0, "", "");
+            db = new DatabaseHelper(context); //reinit DB
+            submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) (duration / 1000), (short) 1, (int) 0, "", 0, "", "");
 
-            if (isInserted) {
-                Toast.makeText(context, "State saved", Toast.LENGTH_SHORT).show();
-            } else
-                Toast.makeText(context, "Failed to save", Toast.LENGTH_SHORT).show();
-
-            sharedPrefEditor.putInt("FocusMode", 0);
-            sharedPrefEditor.apply();
-
-            final Intent intentService = new Intent(context, CountService.class);
-            context.stopService(intentService);
-            context.startService(intentService);
-
-            Intent intent_home = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
-            intent_home.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
-            intent_home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
-            context.startActivity(intent_home);
         }
 
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
             Intent i = new Intent(context, CountService.class);
             context.startService(i);
         }
+    }
+
+    public void submitRawData(long start_time, long end_time, int duration, short type, int location_img_id, String location_txt, int activity_img_id, String activity_txt, String distraction) {
+        if (Tools.isNetworkAvailable(context)) {
+            Tools.executeForService(new MyServiceRunnable(
+                    (Service) context,
+                    context.getString(R.string.url_server, context.getString(R.string.server_ip)),
+                    SignInActivity.loginPrefs.getString(SignInActivity.email, null),
+                    start_time,
+                    end_time,
+                    duration,
+                    type,
+                    location_img_id,
+                    location_txt,
+                    activity_img_id,
+                    activity_txt,
+                    distraction
+
+            ) {
+                @Override
+                public void run() {
+                    String url = (String) args[0];
+                    String email = (String) args[1];
+                    long start_time = (long) args[2];
+                    long end_time = (long) args[3];
+                    int duration = (int) args[4];
+                    short type = (short) args[5];
+                    int location_img_id = (int) args[6];
+                    String location_txt = (String) args[7];
+                    int activity_img_id = (int) args[8];
+                    String activity_txt = (String) args[9];
+                    String distraction = (String) args[10];
+
+                    PHPRequest request;
+                    try {
+                        request = new PHPRequest(url);
+                        String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, String.valueOf(location_img_id), activity_txt, String.valueOf(activity_img_id), String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(distraction));
+                        switch (result) {
+                            case Tools.RES_OK:
+                                Log.d(TAG, "Submitted");
+                                restartServiceAndGoHome();
+                                break;
+                            case Tools.RES_FAIL:
+                                Log.d(TAG, "Failed to submi");
+                                break;
+                            case Tools.RES_SRV_ERR:
+                                Log.d(TAG, "Failed to sign up. (SERVER SIDE ERROR)");
+                                break;
+                            default:
+                                break;
+                        }
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+        } else {
+            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_img_id, location_txt, activity_img_id, activity_txt, distraction);
+
+            if (isInserted) {
+                Toast.makeText(context, "State saved", Toast.LENGTH_SHORT).show();
+            } else
+                Toast.makeText(context, "Failed to save", Toast.LENGTH_SHORT).show();
+
+            restartServiceAndGoHome();
+
+        }
+    }
+
+    public void restartServiceAndGoHome() {
+
+        sharedPrefEditor.putInt("FocusMode", 0);
+        sharedPrefEditor.apply();
+
+        final Intent intentService = new Intent(context, CountService.class);
+        context.stopService(intentService);
+        context.startService(intentService);
+
+
+        /*Intent intent_home = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
+        intent_home.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
+        intent_home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
+        context.startActivity(intent_home);
+        */
     }
 }

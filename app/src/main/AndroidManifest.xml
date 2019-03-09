@@ -33,13 +33,11 @@
 
         <activity
             android:name=".SignUpActivity"
-            android:label="@string/title_activity_sign_up"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/title_activity_sign_in"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
             android:name=".LockScreen"
@@ -54,7 +52,6 @@
 
         <activity
             android:name=".Location_Activity_History"
-            android:label="@string/title_activity_location___summary"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <receiver

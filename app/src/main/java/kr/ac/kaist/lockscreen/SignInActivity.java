@@ -8,9 +8,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 
 public class SignInActivity extends Activity {
@@ -68,7 +65,7 @@ public class SignInActivity extends Activity {
                     String email = (String) args[1];
                     String password = (String) args[2];
 
-                    PHPRequest request = null;
+                    PHPRequest request;
                     try {
                         request = new PHPRequest(url);
                         String result = request.PhPtest(PHPRequest.SERV_CODE_SIGN_IN, email, password, null, null, null, null, null, null, null, null);

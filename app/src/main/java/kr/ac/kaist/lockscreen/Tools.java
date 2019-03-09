@@ -2,6 +2,8 @@ package kr.ac.kaist.lockscreen;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Application;
+import android.app.Service;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -26,6 +28,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.Provider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -54,6 +57,14 @@ class Tools {
 
     static void execute(MyRunnable runnable) {
         disable_touch(runnable.activity);
+        executor.execute(runnable);
+    }
+
+    static void executeForService(MyServiceRunnable runnable){
+        executor.execute(runnable);
+    }
+
+    static void executeForApplication(MyApplicationRunnable runnable){
         executor.execute(runnable);
     }
 
@@ -146,6 +157,25 @@ abstract class MyRunnable implements Runnable {
     Activity activity;
 }
 
+abstract class MyServiceRunnable implements Runnable {
+    MyServiceRunnable(Service srv, Object... args) {
+        Service service = srv;
+        this.args = Arrays.copyOf(args, args.length);
+    }
+
+    Object[] args;
+}
+
+abstract class MyApplicationRunnable implements Runnable {
+    MyApplicationRunnable(Application app, Object... args) {
+        this.application = app;
+        this.args = Arrays.copyOf(args, args.length);
+    }
+
+    Object[] args;
+    Application application;
+}
+
 class NetworkUtil {
     @SuppressLint("NewApi")
     static public void setNetworkPolicy() {
@@ -235,9 +265,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     private Context context;
 
-    DatabaseHelper(Context context) {
-        super(context, DB_NAME, null, 1);
-        this.context = context;
+    DatabaseHelper(Context con) {
+        super(con, DB_NAME, null, 1);
+        context = con;
     }
 
     @Override

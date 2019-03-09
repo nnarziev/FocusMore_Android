@@ -170,16 +170,16 @@ public class LockScreen extends AppCompatActivity {
             if (difference_time > 0) {
                 if (difference_time < 60) {
                     sec = difference_time;
-                    txtTimer.setText(String.valueOf(sec) + "초");
+                    txtTimer.setText(String.format(Locale.ENGLISH, "%d%s", sec, getString(R.string.seconds)));
                 } else if (difference_time < 3600) {
                     min = difference_time / 60;
                     sec = difference_time % 60;
-                    txtTimer.setText(String.valueOf(min) + "분 " + String.valueOf(sec) + "초");
+                    txtTimer.setText(String.format(Locale.ENGLISH, "%d%s %d%s", min, getString(R.string.min), sec, getString(R.string.seconds)));
                 } else {
                     hour = difference_time / 3600;
                     min = (difference_time % 3600) / 60;
                     sec = difference_time % 60;
-                    txtTimer.setText(String.valueOf(hour) + "시간" + String.valueOf(min) + "분 " + String.valueOf(sec) + "초");
+                    txtTimer.setText(String.format(Locale.ENGLISH, "%d%s %d%s %d%s", hour, getString(R.string.hours), min, getString(R.string.min), sec, getString(R.string.seconds)));
                 }
             } else {
                 txtTimer.setText("잠금 모드 해제!");
@@ -414,14 +414,6 @@ public class LockScreen extends AppCompatActivity {
 
         submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 2, 0, "", 0, "", "");
 
-        /*boolean isInserted = db.insertRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 2, 0, "", 0, "", "");
-
-        if (isInserted) {
-            Toast.makeText(getApplicationContext(), "State saved", Toast.LENGTH_SHORT).show();
-        } else
-            Toast.makeText(getApplicationContext(), "Failed to save", Toast.LENGTH_SHORT).show();
-        */
-
         sharedPrefEditor.putInt("Shaked", 0);
         sharedPrefEditor.apply();
     }
@@ -466,21 +458,20 @@ public class LockScreen extends AppCompatActivity {
 
         submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 3, (int) chosenLocationRB.getTag(), chosenLocationRB.getText().toString(), (int) chosenActivityRB.getTag(), chosenActivityRB.getText().toString(), chosenDisturbanceRB.getText().toString());
 
-        /*boolean isInserted = db.insertRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 3, (int) chosenLocationRB.getTag(), chosenLocationRB.getText().toString(), (int) chosenActivityRB.getTag(), chosenActivityRB.getText().toString(), chosenDisturbanceRB.getText().toString(), (short) 0);
-
-        if (isInserted) {
-            Toast.makeText(getApplicationContext(), "State saved", Toast.LENGTH_SHORT).show();
-        } else
-            Toast.makeText(getApplicationContext(), "Failed to save", Toast.LENGTH_SHORT).show();
-        */
         //region Updating accumulated duration time for location and activity
-        /*for (Map.Entry<String, Integer> entry : durationsActivity.entrySet()) {
+        for (Map.Entry<String, Integer> entry : durationsActivity.entrySet()) {
             String key = entry.getKey();
             int value = entry.getValue();
             Log.d(TAG, key + " = " + value);
             // do stuff
         }
-        boolean isUpdated = false;
+        for (Map.Entry<String, Integer> entry : durationsLocations.entrySet()) {
+            String key = entry.getKey();
+            int value = entry.getValue();
+            Log.d(TAG, key + " = " + value);
+            // do stuff
+        }
+        boolean isUpdated;
         int total_duration = durationsLocations.get(chosenLocationRB.getText().toString()) + difference_time;
         isUpdated = db.updateUserDataAccDuration(LOCATIONS, chosenLocationRB.getText().toString(), total_duration);
         if (isUpdated) {
@@ -492,7 +483,7 @@ public class LockScreen extends AppCompatActivity {
                 Log.d(TAG, "Failed to update UserData accumulated time");
         } else {
             Log.d(TAG, "Failed to update UserData accumulated time");
-        }*/
+        }
         //endregion
 
     }
@@ -538,7 +529,7 @@ public class LockScreen extends AppCompatActivity {
                     String activity_txt = (String) args[9];
                     String distraction = (String) args[10];
 
-                    PHPRequest request = null;
+                    PHPRequest request;
                     try {
                         request = new PHPRequest(url);
                         String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, String.valueOf(location_img_id), activity_txt, String.valueOf(activity_img_id), String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(distraction));
@@ -661,17 +652,6 @@ public class LockScreen extends AppCompatActivity {
 
                 submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 1, 0, "", 0, "", "");
 
-                /*
-                boolean isInserted = db.insertRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 1, 0, "", 0, "", "");
-
-                if (isInserted) {
-                    Toast.makeText(getApplicationContext(), "State saved", Toast.LENGTH_SHORT).show();
-                } else
-                    Toast.makeText(getApplicationContext(), "Failed to save", Toast.LENGTH_SHORT).show();
-
-                restartServiceAndGoHome();
-                */
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -688,5 +668,26 @@ public class LockScreen extends AppCompatActivity {
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         return true;
+    }
+
+    @Override
+    protected void onUserLeaveHint() {
+        Log.d(TAG,"Pressed home button!");
+
+        //State Type 2 -> cancel
+        Calendar calStart = Calendar.getInstance();
+        Calendar calEnd = Calendar.getInstance();
+        long start_time = sharedPref.getLong("data_start_timestamp", -1);
+        long end_time = System.currentTimeMillis();
+        calStart.setTimeInMillis(start_time);
+        calEnd.setTimeInMillis(end_time);
+
+        submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 2, 0, "", 0, "", "");
+
+        sharedPrefEditor.putInt("Shaked", 0);
+        sharedPrefEditor.apply();
+
+
+        super.onUserLeaveHint();
     }
 }

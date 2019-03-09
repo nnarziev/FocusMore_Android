@@ -17,7 +17,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class Adapters {
 
@@ -293,9 +295,37 @@ public class Adapters {
 
             lastPosition = position;
 
-            viewHolder.start_time.setText(String.valueOf(dataModel.getStartTime()));
-            viewHolder.end_time.setText(String.valueOf(dataModel.getEndTime()));
-            viewHolder.duration.setText(String.valueOf(dataModel.getDuration()));
+            //region Setting start and end time
+            Calendar startCal = Calendar.getInstance();
+            startCal.setTimeInMillis(dataModel.getStartTime());
+            Calendar endCal = Calendar.getInstance();
+            endCal.setTimeInMillis(dataModel.getEndTime());
+
+            viewHolder.start_time.setText(String.format(Locale.ENGLISH, "%d:%d", startCal.get(Calendar.HOUR_OF_DAY), startCal.get(Calendar.MINUTE)));
+            viewHolder.end_time.setText(String.format(Locale.ENGLISH, "%d:%d", endCal.get(Calendar.HOUR_OF_DAY), endCal.get(Calendar.MINUTE)));
+            //endregion
+            //region Setting duration text
+            int hour;
+            int min;
+            int sec;
+            if (dataModel.getDuration() > 0) {
+                if (dataModel.getDuration() < 60) {
+                    sec = dataModel.getDuration();
+                    viewHolder.duration.setText(String.format(Locale.ENGLISH, "00:00:%d", sec));
+                } else if (dataModel.getDuration() < 3600) {
+                    min = dataModel.getDuration() / 60;
+                    sec = dataModel.getDuration() % 60;
+                    viewHolder.duration.setText(String.format(Locale.ENGLISH, "00:%d:%d", min, sec));
+                } else {
+                    hour = dataModel.getDuration() / 3600;
+                    min = (dataModel.getDuration() % 3600) / 60;
+                    sec = dataModel.getDuration() % 60;
+                    viewHolder.duration.setText(String.format(Locale.ENGLISH, "%d:%d:%d", hour, min, sec));
+                }
+            } else {
+                viewHolder.duration.setText("Undefined");
+            }
+            //endregion
             viewHolder.iconActivity.setImageResource(dataModel.getIconActivity());
             viewHolder.textActivity.setText(dataModel.getTextActivity());
             viewHolder.iconLocation.setImageResource(dataModel.getIconLocation());

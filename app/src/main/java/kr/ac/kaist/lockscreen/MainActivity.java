@@ -1,6 +1,5 @@
 package kr.ac.kaist.lockscreen;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -10,56 +9,50 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.BufferedReader;
+import android.widget.Toolbar;
 
 import java.io.File;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 
 import static kr.ac.kaist.lockscreen.DatabaseHelper.ACTIVITIES;
 import static kr.ac.kaist.lockscreen.DatabaseHelper.LOCATIONS;
-import static kr.ac.kaist.lockscreen.SignInActivity.email;
 
 public class MainActivity extends Activity {
     public static final String TAG = "MainActivity";
     protected SharedPreferences sharedPref = null;
     protected SharedPreferences.Editor sharedPrefEditor = null;
 
-    protected ListView listView;
-    protected String[] results;
-
     private DatabaseHelper myDb;
-
-    TextView qResult;
 
     ConnectionReceiver receiver;
     IntentFilter intentFilter;
 
+    Intent intentService;
+
     private static final String ENABLED_NOTIFICATION_LISTENERS = "enabled_notification_listeners";
     private static final String ACTION_NOTIFICATION_LISTENER_SETTINGS = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS";
 
-    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setActionBar((Toolbar) findViewById(R.id.my_toolbar));
+        }
 
         //init DB
         myDb = new DatabaseHelper(this);
@@ -83,18 +76,20 @@ public class MainActivity extends Activity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
     public void init() {
-        listView = findViewById(R.id.listView);
         Button btn_reset_service = findViewById(R.id.resetButton);
         Button btn_esm_history = findViewById(R.id.esmResult);
-        Button btn_pop_local_db_res = findViewById(R.id.popupResult);
         Button btn_confirm = findViewById(R.id.confirm);
         Button btn_mng_locations = findViewById(R.id.btn_mng_locations);
         Button btn_mng_activities = findViewById(R.id.btn_mng_activities);
         final EditText txt_input_sec = findViewById(R.id.input_sec);
         final TextView txt_sec = findViewById(R.id.textView2);
-
-        qResult = findViewById(R.id.query_result);
 
         sharedPref = getSharedPreferences("Modes", Activity.MODE_PRIVATE);
         sharedPrefEditor = sharedPref.edit();
@@ -103,7 +98,7 @@ public class MainActivity extends Activity {
         txt_input_sec.setText(String.valueOf(set_duration));
 
         //락스크린 서비스 실행(카운트도 같이 함)
-        final Intent intentService = new Intent(this, CountService.class);
+        intentService = new Intent(this, CountService.class);
         startService(intentService);
 
         btn_reset_service.setOnClickListener(new View.OnClickListener() {
@@ -138,27 +133,6 @@ public class MainActivity extends Activity {
                 startActivity(intent);
             }
         });
-
-        btn_pop_local_db_res.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                /*try {
-                    List<String> results_temp = myDb.getRawData();
-                    int count = results_temp.size();
-                    results = new String[count];
-                    results = results_temp.toArray(results);
-                    //Date date = new Date(Long.parseLong(results[0].split("\n")[0].split(":")[1]));
-                    //results[0] = date.toString();
-
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, results);
-                    listView.setAdapter(adapter);
-                    resultView.setText(String.valueOf(count) + "개의 결과가 발견되었습니다.");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }*/
-            }
-        });
-
 
         btn_mng_locations.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -310,46 +284,16 @@ public class MainActivity extends Activity {
         return (alertDialogBuilder.create());
     }
 
-    private class phpDown extends AsyncTask<String, Integer, String> {
-        @Override
-        protected String doInBackground(String... urls) {
+    public void logoutClick(MenuItem item) {
+        SharedPreferences.Editor editor = SignInActivity.loginPrefs.edit();
+        editor.clear();
+        editor.apply();
+        stopService(intentService);
+        sharedPrefEditor.putInt("FocusMode", 0);
+        sharedPrefEditor.apply();
 
-            StringBuilder jsonHtml = new StringBuilder();
-            String str;
-            try {
-                // connection url
-                URL url = new URL(urls[0]);
-
-                // connection object generation
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                // if connected
-                if (conn != null) {
-                    conn.setConnectTimeout(10000);
-                    conn.setUseCaches(false);
-                    // if code returned
-                    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-                        for (; ; ) {
-                            // read text from web page
-                            String line = br.readLine();
-                            if (line == null) break;
-                            jsonHtml.append(line + "\n");
-                        }
-                        br.close();
-                    }
-                    conn.disconnect();
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-
-            return jsonHtml.toString();
-
-        }
-
-        protected void onPostExecute(String str) {
-            Log.d(TAG, str + "");
-        }
+        Intent intent = new Intent(MainActivity.this, SignInActivity.class);
+        startActivity(intent);
+        finish();
     }
-
 }

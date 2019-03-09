@@ -25,6 +25,7 @@
     <string name="day">day</string>
     <string name="date">date</string>
     <string name="accumulated_time">accumulated time</string>
+    <string name="no_data">No data on this date</string>
     <string name="recorded_static_activity">기록된 정적인 활동</string>
     <string name="activity">활동</string>
     <string name="plcae">장소</string>
@@ -45,5 +46,11 @@
     <string name="etc">ETC</string>
     <string name="history_esm">history (ESM)</string>
     <string name="db_reinit">DB re-init</string>
+
+    <string name="seconds">초</string>
+    <string name="min">분</string>
+    <string name="hours">시간</string>
+    <string name="log_out">log out</string>
+
 
 </resources>

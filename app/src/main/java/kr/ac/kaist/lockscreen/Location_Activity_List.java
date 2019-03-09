@@ -44,9 +44,8 @@ public class Location_Activity_List extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_place_list);
 
-        //region Making window full sized and to show up when locked
+        //region Making window to show up when locked
         Window win = getWindow();
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
@@ -302,6 +301,7 @@ public class Location_Activity_List extends AppCompatActivity {
                         Toast.makeText(Location_Activity_List.this, "Failed", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(Location_Activity_List.this, "Please, add title/icon", Toast.LENGTH_SHORT).show();
+                    return;
                 }
 
                 dialog.dismiss();
