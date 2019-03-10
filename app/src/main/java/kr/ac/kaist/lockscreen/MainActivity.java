@@ -36,8 +36,6 @@ public class MainActivity extends Activity {
     protected SharedPreferences sharedPref = null;
     protected SharedPreferences.Editor sharedPrefEditor = null;
 
-    private DatabaseHelper myDb;
-
     ConnectionReceiver receiver;
     IntentFilter intentFilter;
 
@@ -55,7 +53,7 @@ public class MainActivity extends Activity {
         }
 
         //init DB
-        myDb = new DatabaseHelper(this);
+        DatabaseHelper myDb = new DatabaseHelper(this);
         myDb.testDB();
 
         //region If the user did not turn the notification listener service on we prompt him to do so

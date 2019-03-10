@@ -28,7 +28,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.Provider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
