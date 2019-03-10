@@ -60,11 +60,11 @@ class Tools {
         executor.execute(runnable);
     }
 
-    static void executeForService(MyServiceRunnable runnable){
+    static void executeForService(MyServiceRunnable runnable) {
         executor.execute(runnable);
     }
 
-    static void executeForApplication(MyApplicationRunnable runnable){
+    static void executeForApplication(MyApplicationRunnable runnable) {
         executor.execute(runnable);
     }
 
@@ -577,6 +577,10 @@ class HistoryListDataModel {
     private int iconLocation;
     private String textLocation;
 
+    HistoryListDataModel() {
+
+    }
+
     HistoryListDataModel(long startTimne, long endTimne, int duration, int iconActivity, String textActivity, int iconLocation, String textLocation) {
         this.startTime = startTimne;
         this.endTimne = endTimne;
@@ -599,12 +603,24 @@ class HistoryListDataModel {
         return duration;
     }
 
+    void setDuration(int dur) {
+        this.duration = dur;
+    }
+
     int getIconActivity() {
         return iconActivity;
     }
 
+    void setIconActivity(int iconID) {
+        this.iconActivity = iconID;
+    }
+
     String getTextActivity() {
         return textActivity;
+    }
+
+    void setTextActivity(String txt) {
+        this.textActivity = txt;
     }
 
     int getIconLocation() {

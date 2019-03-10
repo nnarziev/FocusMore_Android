@@ -16,10 +16,13 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.net.Inet4Address;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class Adapters {
 
@@ -246,9 +249,10 @@ public class Adapters {
 
         HistoryListAdapter(Context context, ArrayList<HistoryListDataModel> data, boolean isDetailed) {
             super(context, R.layout.history_row_item, data);
-            this.dataset = data;
             this.context = context;
             this.isDetailed = isDetailed;
+            this.dataset = data;
+
         }
 
         private int lastPosition = -1;
@@ -285,25 +289,17 @@ public class Adapters {
             }
 
             //region Perform click for needed buttons(solution from :http://www.migapro.com/click-events-listview-gridview/)
-            viewHolder.edit.setOnClickListener(new View.OnClickListener() {
+            /*viewHolder.edit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     ((ListView) parent).performItemClick(view, position, 0); // Let the event be handled in onItemClick()
                 }
-            });
+            });*/
             //endregion
 
             lastPosition = position;
 
-            //region Setting start and end time
-            Calendar startCal = Calendar.getInstance();
-            startCal.setTimeInMillis(dataModel.getStartTime());
-            Calendar endCal = Calendar.getInstance();
-            endCal.setTimeInMillis(dataModel.getEndTime());
 
-            viewHolder.start_time.setText(String.format(Locale.ENGLISH, "%d:%d", startCal.get(Calendar.HOUR_OF_DAY), startCal.get(Calendar.MINUTE)));
-            viewHolder.end_time.setText(String.format(Locale.ENGLISH, "%d:%d", endCal.get(Calendar.HOUR_OF_DAY), endCal.get(Calendar.MINUTE)));
-            //endregion
             //region Setting duration text
             int hour;
             int min;
@@ -326,12 +322,25 @@ public class Adapters {
                 viewHolder.duration.setText("Undefined");
             }
             //endregion
+
+
             viewHolder.iconActivity.setImageResource(dataModel.getIconActivity());
             viewHolder.textActivity.setText(dataModel.getTextActivity());
             viewHolder.iconLocation.setImageResource(dataModel.getIconLocation());
             viewHolder.textLocation.setText(dataModel.getTextLocation());
 
+
             if (isDetailed) {
+                //region Setting start and end time
+                Calendar startCal = Calendar.getInstance();
+                startCal.setTimeInMillis(dataModel.getStartTime());
+                Calendar endCal = Calendar.getInstance();
+                endCal.setTimeInMillis(dataModel.getEndTime());
+
+                viewHolder.start_time.setText(String.format(Locale.ENGLISH, "%d:%d", startCal.get(Calendar.HOUR_OF_DAY), startCal.get(Calendar.MINUTE)));
+                viewHolder.end_time.setText(String.format(Locale.ENGLISH, "%d:%d", endCal.get(Calendar.HOUR_OF_DAY), endCal.get(Calendar.MINUTE)));
+                //endregion
+
                 viewHolder.detailedViewTimeHidden.setVisibility(View.VISIBLE);
                 viewHolder.detailedViewOthersHidden.setVisibility(View.VISIBLE);
                 viewHolder.duration.setVisibility(View.GONE);

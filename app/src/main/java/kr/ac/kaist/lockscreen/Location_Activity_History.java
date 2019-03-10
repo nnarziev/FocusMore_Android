@@ -17,6 +17,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -95,20 +96,7 @@ public class Location_Activity_History extends Activity {
             }
         }
 
-
-        //TODO: handle activity texts duplication
-        Map<String, Integer> countMap = new HashMap<>();
-
-        for (HistoryListDataModel item : localDataModels) {
-            String txtElement = item.getTextActivity();
-            if (countMap.containsKey(txtElement))
-                countMap.put(txtElement, countMap.get(txtElement) + 1);
-            else
-                countMap.put(txtElement, 1);
-        }
-        Log.d(TAG, countMap.toString() + "");
-
-
+        //region Displaying total accumulated duration for one day
         int hour;
         int min;
         int sec;
@@ -131,9 +119,37 @@ public class Location_Activity_History extends Activity {
         } else {
             accTime.setText(getString(R.string.no_data));
         }
+        //endregion
 
+        //region Handling activity texts duplication
+        Map<String, HistoryListDataModel> countMap = new HashMap<>();
+        for (HistoryListDataModel item : localDataModels) {
+            String txtElement = item.getTextActivity();
+            HistoryListDataModel newData = new HistoryListDataModel();
+            if (countMap.containsKey(txtElement)) {
+                countMap.get(txtElement).setTextActivity(txtElement);
+                countMap.get(txtElement).setDuration(countMap.get(txtElement).getDuration() + item.getDuration());
+                countMap.get(txtElement).setIconActivity(item.getIconActivity());
+                countMap.put(txtElement, countMap.get(txtElement));
+            } else {
+                newData.setTextActivity(txtElement);
+                newData.setDuration(item.getDuration());
+                newData.setIconActivity(item.getIconActivity());
+                countMap.put(txtElement, newData);
+            }
+        }
+        ArrayList<HistoryListDataModel> newDataArray = new ArrayList<>();
+        for (Map.Entry<String, HistoryListDataModel> entry : countMap.entrySet()) {
+            newDataArray.add(entry.getValue());
+        }
+        //endregion
 
-        Adapters.HistoryListAdapter adapter = new Adapters.HistoryListAdapter(Location_Activity_History.this, localDataModels, isDetailed);
+        Adapters.HistoryListAdapter adapter;
+        if (isDetailed)
+            adapter = new Adapters.HistoryListAdapter(Location_Activity_History.this, localDataModels, isDetailed);
+        else
+            adapter = new Adapters.HistoryListAdapter(Location_Activity_History.this, newDataArray, isDetailed);
+
         listView = findViewById(R.id.list);
         listView.setAdapter(adapter); //set initialized adapter
 
