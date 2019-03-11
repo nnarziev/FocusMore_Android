@@ -18,8 +18,6 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import java.util.Calendar;
-
 public class CountService extends Service implements SensorEventListener {
 
     public static final String CHANNEL_ID = "exampleServiceChannel";
@@ -30,7 +28,7 @@ public class CountService extends Service implements SensorEventListener {
     private BroadcastReceiver mReceiver;
 
     private boolean isStop = false;
-    private int trigger_duration_in_second = 3;
+    private int trigger_duration_in_second = 30;
     private boolean shake_flag;
     private int shake_time = 0;
 
