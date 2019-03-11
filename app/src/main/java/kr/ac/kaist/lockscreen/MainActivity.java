@@ -99,14 +99,6 @@ public class MainActivity extends Activity {
         intentService = new Intent(this, CountService.class);
         startService(intentService);
 
-        btn_reset_service.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopService(intentService);
-                startService(intentService);
-            }
-        });
-
         btn_confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -293,5 +285,11 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(MainActivity.this, SignInActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    public void restartServiceClick(MenuItem item) {
+        stopService(intentService);
+        startService(intentService);
+        Toast.makeText(this, "Service has been restarted!", Toast.LENGTH_SHORT).show();
     }
 }

@@ -51,6 +51,7 @@
     <string name="min">분</string>
     <string name="hours">시간</string>
     <string name="log_out">log out</string>
+    <string name="service_restart">Service restart</string>
 
 
 </resources>
