@@ -143,7 +143,7 @@ public class ScreenReceiver extends BroadcastReceiver {
                         switch (result) {
                             case Tools.RES_OK:
                                 Log.d(TAG, "Submitted");
-                                restartServiceAndGoHome();
+                                restartServiceFinishActivity();
                                 break;
                             case Tools.RES_FAIL:
                                 Log.d(TAG, "Failed to submi");
@@ -168,25 +168,29 @@ public class ScreenReceiver extends BroadcastReceiver {
             } else
                 Toast.makeText(context, "Failed to save", Toast.LENGTH_SHORT).show();
 
-            restartServiceAndGoHome();
+            restartServiceFinishActivity();
 
         }
     }
 
-    public void restartServiceAndGoHome() {
+    public void restartServiceFinishActivity() {
 
         sharedPrefEditor.putInt("FocusMode", 0);
         sharedPrefEditor.apply();
 
         final Intent intentService = new Intent(context, CountService.class);
         context.stopService(intentService);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         context.startService(intentService);
 
+        Intent intent = new Intent("finisher");
+        context.sendBroadcast(intent);     // send custom broadcast to Finisher activity to finish the activity
 
-        /*Intent intent_home = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
-        intent_home.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
-        intent_home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
-        context.startActivity(intent_home);
-        */
     }
 }
+
+

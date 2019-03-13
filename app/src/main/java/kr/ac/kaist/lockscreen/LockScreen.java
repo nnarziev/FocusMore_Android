@@ -160,7 +160,7 @@ public class LockScreen extends AppCompatActivity {
 
         int previous_time = sharedPref.getInt("Count", -1); //becomes 1 when in Focus Mode
         int current_time = (int) System.currentTimeMillis() / 1000;
-        if (sharedPref.getInt("Shaked", -1) == 0) {
+        if (sharedPref.getInt("Shaked", -1) == 0 && sharedPref.getInt("FocusMode", -1) == 1) {
             difference_time = current_time - previous_time;
             int hour = 0;
             int min = 0;
@@ -384,17 +384,19 @@ public class LockScreen extends AppCompatActivity {
         });
     }
 
-    public void restartServiceAndGoHome() {
+    public void restartServiceAndFinishActivity() {
         //region Init intent going to home screen
+        /*
         final Intent intentHome = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
         intentHome.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
         intentHome.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
+         */
         //endregion
 
         //region Restart the service and finish this activity
         stopService(intentService);
         startService(intentService);
-        startActivity(intentHome);
+        //startActivity(intentHome); // Start the home activity
         sharedPrefEditor.putInt("FocusMode", 0);
         sharedPrefEditor.apply();
         finish();
@@ -499,6 +501,7 @@ public class LockScreen extends AppCompatActivity {
 
     public void submitRawData(long start_time, long end_time, int duration, short type, int location_img_id, String location_txt, int activity_img_id, String activity_txt, String distraction) {
         if (Tools.isNetworkAvailable(this)) {
+            Log.d(TAG, "With connection case");
             Tools.execute(new MyRunnable(
                     this,
                     getString(R.string.url_server, getString(R.string.server_ip)),
@@ -538,7 +541,7 @@ public class LockScreen extends AppCompatActivity {
                                     @Override
                                     public void run() {
                                         Toast.makeText(LockScreen.this, "Submitted", Toast.LENGTH_SHORT).show();
-                                        restartServiceAndGoHome();
+                                        restartServiceAndFinishActivity();
                                     }
                                 });
                                 break;
@@ -570,13 +573,13 @@ public class LockScreen extends AppCompatActivity {
             });
         } else {
             boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_img_id, location_txt, activity_img_id, activity_txt, distraction);
-
+            Log.d(TAG, "No connection case");
             if (isInserted) {
                 Toast.makeText(getApplicationContext(), "State saved", Toast.LENGTH_SHORT).show();
             } else
                 Toast.makeText(getApplicationContext(), "Failed to save", Toast.LENGTH_SHORT).show();
 
-            restartServiceAndGoHome();
+            restartServiceAndFinishActivity();
 
         }
     }
@@ -685,7 +688,6 @@ public class LockScreen extends AppCompatActivity {
 
         sharedPrefEditor.putInt("Shaked", 0);
         sharedPrefEditor.apply();
-
 
         super.onUserLeaveHint();
     }
