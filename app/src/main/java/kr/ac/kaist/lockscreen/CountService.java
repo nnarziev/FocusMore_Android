@@ -169,7 +169,7 @@ public class CountService extends Service implements SensorEventListener {
                 int currentTime = (int) (System.currentTimeMillis() / 1000);
 
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

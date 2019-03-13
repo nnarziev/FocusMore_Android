@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -59,7 +60,7 @@ public class ScreenReceiver extends BroadcastReceiver {
             sharedPrefEditor.putInt("Typing", 0);
             sharedPrefEditor.apply();
 
-            Log.d(TAG, "Smartphone screen is OFF" + String.valueOf(flag));
+            Log.d(TAG, "Smartphone screen is OFF: " + String.valueOf(flag));
 
             if (flag != 1 || focus == 0) { // 만약에 잠금 화면에서 화면이 꺼진 것이라면 reset하지 않는다. 그리고 timer가 trigger되지 않았으면.
                 final Intent intentService = new Intent(context, CountService.class);
@@ -86,16 +87,19 @@ public class ScreenReceiver extends BroadcastReceiver {
             Log.d(TAG, "Shake (movement detected)");
 
             //State Type 1 -> movement
-            Calendar calStart = Calendar.getInstance();
-            Calendar calEnd = Calendar.getInstance();
-            long start_time = sharedPref.getLong("data_start_timestamp", -1);
-            long end_time = System.currentTimeMillis();
-            long duration = end_time - start_time;
-            calStart.setTimeInMillis(start_time);
-            calEnd.setTimeInMillis(end_time);
+            if (focus == 1) {
+                Calendar calStart = Calendar.getInstance();
+                Calendar calEnd = Calendar.getInstance();
+                long start_time = sharedPref.getLong("data_start_timestamp", -1);
+                long end_time = System.currentTimeMillis();
+                long duration = end_time - start_time;
+                calStart.setTimeInMillis(start_time);
+                calEnd.setTimeInMillis(end_time);
 
-            db = new DatabaseHelper(context); //reinit DB
-            submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) (duration / 1000), (short) 1, (int) 0, "", 0, "", "");
+                db = new DatabaseHelper(context); //reinit DB
+                submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) (duration / 1000), (short) 1, (int) 0, "", 0, "", "");
+            }
+
 
         }
 
@@ -143,7 +147,7 @@ public class ScreenReceiver extends BroadcastReceiver {
                         switch (result) {
                             case Tools.RES_OK:
                                 Log.d(TAG, "Submitted");
-                                restartServiceFinishActivity();
+                                restartServiceAndGoHome();
                                 break;
                             case Tools.RES_FAIL:
                                 Log.d(TAG, "Failed to submi");
@@ -168,27 +172,24 @@ public class ScreenReceiver extends BroadcastReceiver {
             } else
                 Toast.makeText(context, "Failed to save", Toast.LENGTH_SHORT).show();
 
-            restartServiceFinishActivity();
+            restartServiceAndGoHome();
 
         }
     }
 
-    public void restartServiceFinishActivity() {
+    public void restartServiceAndGoHome() {
 
         sharedPrefEditor.putInt("FocusMode", 0);
         sharedPrefEditor.apply();
 
         final Intent intentService = new Intent(context, CountService.class);
         context.stopService(intentService);
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         context.startService(intentService);
 
-        Intent intent = new Intent("finisher");
-        context.sendBroadcast(intent);     // send custom broadcast to Finisher activity to finish the activity
+        Intent intent_home = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
+        intent_home.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
+        intent_home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
+        context.startActivity(intent_home);
 
     }
 }
