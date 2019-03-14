@@ -18,11 +18,13 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +51,13 @@ public class LockScreen extends AppCompatActivity {
     private RadioGroup rgDisturbance;
     private GridView gvLocations;
     private GridView gvActivity;
+    private SeekBar seekBarQ1;
+    private SeekBar seekBarQ2;
+    private SeekBar seekBarQ3;
+    private EditText editTextQ4;
+
+    private ImageView imgArrowLocation;
+    private ImageView imgArrowActivity;
 
     private int drawableArrowDown;
     private int drawableArrowUp;
@@ -116,16 +125,7 @@ public class LockScreen extends AppCompatActivity {
         db = new DatabaseHelper(this); // init database
         //db.testDB();
 
-        //region Initialize UI variables
-        txtCurrentTime = findViewById(R.id.current_time);
-        txtTimer = findViewById(R.id.timer);
-        rgDisturbance = findViewById(R.id.rg_disturbance); //init radio group for disturbance choice
-        //endregion
-
-        //drawable of icons for arrow (fold/unfold)
-        drawableArrowDown = getResources().getIdentifier("ic_more_down", "drawable", getApplicationContext().getPackageName());
-        drawableArrowUp = getResources().getIdentifier("ic_more_up", "drawable", getApplicationContext().getPackageName());
-
+        initUI();
         initLocations(); //init all available location
         initActivities(); //init all available activities
 
@@ -148,6 +148,24 @@ public class LockScreen extends AppCompatActivity {
             }
 
         };
+    }
+
+    void initUI() {
+
+        //region Initialize UI variables
+        txtCurrentTime = findViewById(R.id.current_time);
+        txtTimer = findViewById(R.id.timer);
+        rgDisturbance = findViewById(R.id.rg_disturbance); //init radio group for disturbance choice
+        seekBarQ1 = findViewById(R.id.question_1);  //init SeekBar for answer from question 1
+        seekBarQ2 = findViewById(R.id.question_2);
+        seekBarQ3 = findViewById(R.id.question_3);
+        editTextQ4 = findViewById(R.id.question_4); //init EditText for answer from question 4
+
+        //drawable of icons for arrow (fold/unfold)
+        drawableArrowDown = getResources().getIdentifier("ic_more_down", "drawable", getApplicationContext().getPackageName());
+        drawableArrowUp = getResources().getIdentifier("ic_more_up", "drawable", getApplicationContext().getPackageName());
+        //endregion
+
     }
 
     private void updateThread() {
@@ -224,7 +242,7 @@ public class LockScreen extends AppCompatActivity {
         Adapters.GridAdapter adapterLocations = new Adapters.GridAdapter(LockScreen.this, iconsLocations, titlesLocations);
 
         final RadioButton moreBtnLocation = findViewById(R.id.location_btn_4);
-        final ImageView imgArrowLocation = findViewById(R.id.arrow_location);
+        imgArrowLocation = findViewById(R.id.arrow_location);
 
         gvLocations = findViewById(R.id.gv_locations);
         gvLocations.setAdapter(adapterLocations);
@@ -324,7 +342,7 @@ public class LockScreen extends AppCompatActivity {
         Adapters.GridAdapter adapterActivity = new Adapters.GridAdapter(LockScreen.this, iconsActivity, titlesActivity);
 
         final RadioButton moreBtnActivity = findViewById(R.id.activity_btn_4);
-        final ImageView imgArrowActivity = findViewById(R.id.arrow_activity);
+        imgArrowActivity = findViewById(R.id.arrow_activity);
 
         gvActivity = findViewById(R.id.gv_activity);
         gvActivity.setAdapter(adapterActivity);
@@ -422,16 +440,22 @@ public class LockScreen extends AppCompatActivity {
     public void etcClicked(View view) {
         switch (view.getId()) {
             case R.id.location_btn_4:
-                if (gvLocations.getVisibility() == View.GONE)
+                if (gvLocations.getVisibility() == View.GONE) {
                     gvLocations.setVisibility(View.VISIBLE);
-                else
+                    imgArrowLocation.setImageResource(drawableArrowUp);
+                } else {
                     gvLocations.setVisibility(View.GONE);
+                    imgArrowLocation.setImageResource(drawableArrowDown);
+                }
                 break;
             case R.id.activity_btn_4:
-                if (gvActivity.getVisibility() == View.GONE)
+                if (gvActivity.getVisibility() == View.GONE) {
                     gvActivity.setVisibility(View.VISIBLE);
-                else
+                    imgArrowActivity.setImageResource(drawableArrowUp);
+                } else {
                     gvActivity.setVisibility(View.GONE);
+                    imgArrowActivity.setImageResource(drawableArrowDown);
+                }
                 break;
             default:
                 break;
@@ -674,7 +698,7 @@ public class LockScreen extends AppCompatActivity {
 
     @Override
     protected void onUserLeaveHint() {
-        Log.d(TAG,"Pressed home button!");
+        Log.d(TAG, "Pressed home button!");
 
         //State Type 2 -> cancel
         Calendar calStart = Calendar.getInstance();
