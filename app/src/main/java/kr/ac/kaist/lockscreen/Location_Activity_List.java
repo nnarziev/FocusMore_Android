@@ -47,7 +47,7 @@ public class Location_Activity_List extends AppCompatActivity {
         //region Making window to show up when locked
         Window win = getWindow();
         win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-        win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        win.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         /*
             FLAG_SHOW_WHEN_LOCKED tells Android to display this activity above the Android default lock screen

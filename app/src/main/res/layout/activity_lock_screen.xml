@@ -504,38 +504,6 @@
                 android:inputType="text"
                 tools:ignore="Autofill" />
 
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="30dp"
-                android:text="@string/question_disturbance"
-                android:textColor="#000"
-                android:textSize="18sp" />
-
-            <RadioGroup
-                android:id="@+id/rg_disturbance"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginEnd="30dp"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="150dp"
-                    android:text="@string/yes" />
-
-                <RadioButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/no" />
-            </RadioGroup>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

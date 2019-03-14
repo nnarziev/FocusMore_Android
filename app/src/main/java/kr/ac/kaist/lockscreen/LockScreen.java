@@ -48,7 +48,6 @@ public class LockScreen extends AppCompatActivity {
     private TextView txtTimer;
     private RadioGroup rgLocations;
     private RadioGroup rgActivity;
-    private RadioGroup rgDisturbance;
     private GridView gvLocations;
     private GridView gvActivity;
     private SeekBar seekBarQ1;
@@ -113,7 +112,7 @@ public class LockScreen extends AppCompatActivity {
         //region Making window full sized and to show up when locked
         Window win = getWindow();
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        win.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
         win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
 
         /*
@@ -155,7 +154,6 @@ public class LockScreen extends AppCompatActivity {
         //region Initialize UI variables
         txtCurrentTime = findViewById(R.id.current_time);
         txtTimer = findViewById(R.id.timer);
-        rgDisturbance = findViewById(R.id.rg_disturbance); //init radio group for disturbance choice
         seekBarQ1 = findViewById(R.id.question_1);  //init SeekBar for answer from question 1
         seekBarQ2 = findViewById(R.id.question_2);
         seekBarQ3 = findViewById(R.id.question_3);
@@ -466,13 +464,11 @@ public class LockScreen extends AppCompatActivity {
         //State Type 3 -> ideal case
         RadioButton chosenLocationRB = findViewById(rgLocations.getCheckedRadioButtonId());
         RadioButton chosenActivityRB = findViewById(rgActivity.getCheckedRadioButtonId());
-        RadioButton chosenDisturbanceRB = findViewById(rgDisturbance.getCheckedRadioButtonId());
 
-        if (chosenActivityRB == null || chosenLocationRB == null || chosenDisturbanceRB == null || chosenActivityRB.getTag() == null || chosenLocationRB.getTag() == null) {
+        if (chosenActivityRB == null || chosenLocationRB == null || chosenActivityRB.getTag() == null || chosenLocationRB.getTag() == null) {
             Toast.makeText(getApplicationContext(), "Please, choose location, activity and disturbance", Toast.LENGTH_LONG).show();
             return;
         }
-
 
         Calendar calStart = Calendar.getInstance();
         Calendar calEnd = Calendar.getInstance();
@@ -481,7 +477,8 @@ public class LockScreen extends AppCompatActivity {
         calStart.setTimeInMillis(start_time);
         calEnd.setTimeInMillis(end_time);
 
-        submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 3, (int) chosenLocationRB.getTag(), chosenLocationRB.getText().toString(), (int) chosenActivityRB.getTag(), chosenActivityRB.getText().toString(), chosenDisturbanceRB.getText().toString());
+        String restResultData = String.format(Locale.ENGLISH, "%d%d%d%s", seekBarQ1.getProgress() + 1, seekBarQ2.getProgress() + 1, seekBarQ3.getProgress() + 1, editTextQ4.getText());
+        submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 3, (int) chosenLocationRB.getTag(), chosenLocationRB.getText().toString(), (int) chosenActivityRB.getTag(), chosenActivityRB.getText().toString(), restResultData);
 
         //region Updating accumulated duration time for location and activity
         for (Map.Entry<String, Integer> entry : durationsActivity.entrySet()) {
@@ -523,7 +520,7 @@ public class LockScreen extends AppCompatActivity {
         return false;
     }
 
-    public void submitRawData(long start_time, long end_time, int duration, short type, int location_img_id, String location_txt, int activity_img_id, String activity_txt, String distraction) {
+    public void submitRawData(long start_time, long end_time, int duration, short type, int location_img_id, String location_txt, int activity_img_id, String activity_txt, String otherESMResponse) {
         if (Tools.isNetworkAvailable(this)) {
             Log.d(TAG, "With connection case");
             Tools.execute(new MyRunnable(
@@ -538,7 +535,7 @@ public class LockScreen extends AppCompatActivity {
                     location_txt,
                     activity_img_id,
                     activity_txt,
-                    distraction
+                    otherESMResponse
 
             ) {
                 @Override
@@ -553,41 +550,53 @@ public class LockScreen extends AppCompatActivity {
                     String location_txt = (String) args[7];
                     int activity_img_id = (int) args[8];
                     String activity_txt = (String) args[9];
-                    String distraction = (String) args[10];
+                    String otherESMResp = (String) args[10];
 
                     PHPRequest request;
                     try {
                         request = new PHPRequest(url);
-                        String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, String.valueOf(location_img_id), activity_txt, String.valueOf(activity_img_id), String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(distraction));
-                        switch (result) {
-                            case Tools.RES_OK:
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(LockScreen.this, "Submitted", Toast.LENGTH_SHORT).show();
-                                        restartServiceAndFinishActivity();
-                                    }
-                                });
-                                break;
-                            case Tools.RES_FAIL:
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(LockScreen.this, "Failed to submit", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                                break;
-                            case Tools.RES_SRV_ERR:
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(LockScreen.this, "Failed to sign up. (SERVER SIDE ERROR)", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                                break;
-                            default:
-                                break;
+                        String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, String.valueOf(location_img_id), activity_txt, String.valueOf(activity_img_id), String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(otherESMResp));
+                        if (result == null) {
+                            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_img_id, location_txt, activity_img_id, activity_txt, otherESMResp);
+                            Log.d(TAG, "Case when Server is OFF");
+                            if (isInserted) {
+                                Log.d(TAG, "State saved to local");
+                            } else
+                                Log.d(TAG, "Failed to save in local");
+
+                            restartServiceAndFinishActivity();
+                        } else {
+                            switch (result) {
+                                case Tools.RES_OK:
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(LockScreen.this, "Submitted", Toast.LENGTH_SHORT).show();
+                                            restartServiceAndFinishActivity();
+                                        }
+                                    });
+                                    break;
+                                case Tools.RES_FAIL:
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(LockScreen.this, "Failed to submit", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                    break;
+                                case Tools.RES_SRV_ERR:
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(LockScreen.this, "Failed to sign up. (SERVER SIDE ERROR)", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
+
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
                     }
@@ -596,7 +605,7 @@ public class LockScreen extends AppCompatActivity {
                 }
             });
         } else {
-            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_img_id, location_txt, activity_img_id, activity_txt, distraction);
+            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_img_id, location_txt, activity_img_id, activity_txt, otherESMResponse);
             Log.d(TAG, "No connection case");
             if (isInserted) {
                 Toast.makeText(getApplicationContext(), "State saved", Toast.LENGTH_SHORT).show();

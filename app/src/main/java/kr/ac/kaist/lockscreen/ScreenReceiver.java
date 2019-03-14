@@ -8,11 +8,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
+import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.net.MalformedURLException;
 import java.util.Calendar;
+
+import static android.content.Context.POWER_SERVICE;
 
 
 public class ScreenReceiver extends BroadcastReceiver {
@@ -84,9 +88,15 @@ public class ScreenReceiver extends BroadcastReceiver {
 
         if (intent.getAction().equals("kr.ac.kaist.lockscreen.shake")) {
             Log.d(TAG, "Shake (movement detected)");
+            PowerManager powerManager = (PowerManager) context.getSystemService(POWER_SERVICE);
+
+            boolean isInteractive = false;
+            if (powerManager != null) {
+                isInteractive = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH && powerManager.isInteractive() || Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH && powerManager.isScreenOn();
+            }
 
             //State Type 1 -> movement
-            if (focus == 1) {
+            if (focus == 1 && !isInteractive) {
                 Calendar calStart = Calendar.getInstance();
                 Calendar calEnd = Calendar.getInstance();
                 long start_time = sharedPref.getLong("data_start_timestamp", -1);
@@ -108,7 +118,7 @@ public class ScreenReceiver extends BroadcastReceiver {
         }
     }
 
-    public void submitRawData(long start_time, long end_time, int duration, short type, int location_img_id, String location_txt, int activity_img_id, String activity_txt, String distraction) {
+    public void submitRawData(long start_time, long end_time, int duration, short type, int location_img_id, String location_txt, int activity_img_id, String activity_txt, String otherESMResponse) {
         if (Tools.isNetworkAvailable(context)) {
             Tools.executeForService(new MyServiceRunnable(
                     (Service) context,
@@ -122,7 +132,7 @@ public class ScreenReceiver extends BroadcastReceiver {
                     location_txt,
                     activity_img_id,
                     activity_txt,
-                    distraction
+                    otherESMResponse
 
             ) {
                 @Override
@@ -137,26 +147,43 @@ public class ScreenReceiver extends BroadcastReceiver {
                     String location_txt = (String) args[7];
                     int activity_img_id = (int) args[8];
                     String activity_txt = (String) args[9];
-                    String distraction = (String) args[10];
+                    String otherESMResp = (String) args[10];
 
                     PHPRequest request;
                     try {
                         request = new PHPRequest(url);
-                        String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, String.valueOf(location_img_id), activity_txt, String.valueOf(activity_img_id), String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(distraction));
-                        switch (result) {
-                            case Tools.RES_OK:
-                                Log.d(TAG, "Submitted");
-                                restartServiceAndGoHome();
-                                break;
-                            case Tools.RES_FAIL:
-                                Log.d(TAG, "Failed to submi");
-                                break;
-                            case Tools.RES_SRV_ERR:
-                                Log.d(TAG, "Failed to sign up. (SERVER SIDE ERROR)");
-                                break;
-                            default:
-                                break;
+                        String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, String.valueOf(location_img_id), activity_txt, String.valueOf(activity_img_id), String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(otherESMResp));
+                        if (result == null) {
+                            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_img_id, location_txt, activity_img_id, activity_txt, otherESMResp);
+
+                            if (isInserted) {
+                                Log.d(TAG, "State saved to local");
+                            } else
+                                Log.d(TAG, "Failed to save to local");
+
+                            restartServiceAndGoHome();
+                        } else {
+                            switch (result) {
+                                case Tools.RES_OK:
+                                    Log.d(TAG, "Submitted");
+                                    restartServiceAndGoHome();
+                                    try {
+                                        Thread.sleep(500);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    break;
+                                case Tools.RES_FAIL:
+                                    Log.d(TAG, "Failed to submi");
+                                    break;
+                                case Tools.RES_SRV_ERR:
+                                    Log.d(TAG, "Failed to sign up. (SERVER SIDE ERROR)");
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
+
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
                     }
@@ -164,7 +191,7 @@ public class ScreenReceiver extends BroadcastReceiver {
                 }
             });
         } else {
-            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_img_id, location_txt, activity_img_id, activity_txt, distraction);
+            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_img_id, location_txt, activity_img_id, activity_txt, otherESMResponse);
 
             if (isInserted) {
                 Toast.makeText(context, "State saved", Toast.LENGTH_SHORT).show();

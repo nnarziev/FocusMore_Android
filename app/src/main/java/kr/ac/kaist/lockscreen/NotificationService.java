@@ -2,7 +2,6 @@ package kr.ac.kaist.lockscreen;
 
 import android.app.Activity;
 import android.app.Application;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -63,7 +62,7 @@ public class NotificationService extends NotificationListenerService {
             calEnd.setTimeInMillis(end_time);
 
             db = new DatabaseHelper(this); //reinit DB
-            submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) (duration / 1000), (short) 1, (int) 0, "", 0, "", "");
+            submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) (duration / 1000), (short) 1, 0, "", 0, "", "");
 
         }
 
@@ -104,20 +103,32 @@ public class NotificationService extends NotificationListenerService {
                     try {
                         request = new PHPRequest(url);
                         String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, String.valueOf(location_img_id), activity_txt, String.valueOf(activity_img_id), String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(distraction));
-                        switch (result) {
-                            case Tools.RES_OK:
-                                Log.d(TAG, "Submitted");
-                                restartServiceAndGoHome();
-                                break;
-                            case Tools.RES_FAIL:
-                                Log.d(TAG, "Failed to submit");
-                                break;
-                            case Tools.RES_SRV_ERR:
-                                Log.d(TAG, "Failed to sign up. (SERVER SIDE ERROR)");
-                                break;
-                            default:
-                                break;
+                        if (result == null) {
+                            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_img_id, location_txt, activity_img_id, activity_txt, distraction);
+
+                            if (isInserted)
+                                Log.d(TAG, "State saved to local");
+                            else
+                                Log.d(TAG, "Failed to save to local");
+
+                            restartServiceAndGoHome();
+                        } else {
+                            switch (result) {
+                                case Tools.RES_OK:
+                                    Log.d(TAG, "Submitted");
+                                    restartServiceAndGoHome();
+                                    break;
+                                case Tools.RES_FAIL:
+                                    Log.d(TAG, "Failed to submit");
+                                    break;
+                                case Tools.RES_SRV_ERR:
+                                    Log.d(TAG, "Failed to sign up. (SERVER SIDE ERROR)");
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
+
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
                     }

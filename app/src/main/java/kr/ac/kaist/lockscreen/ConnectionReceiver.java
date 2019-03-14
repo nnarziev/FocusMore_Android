@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.net.MalformedURLException;
 import java.util.List;
@@ -86,19 +85,21 @@ public class ConnectionReceiver extends BroadcastReceiver {
                 try {
                     request = new PHPRequest(url);
                     String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, String.valueOf(location_img_id), activity_txt, String.valueOf(activity_img_id), String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(distraction));
-                    switch (result) {
-                        case Tools.RES_OK:
-                            Log.d(TAG, "Automatic submission");
-                            deleteSubmittedRaw(start_time);
-                            break;
-                        case Tools.RES_FAIL:
-                            Log.d(TAG, "Automatic submission Failed");
-                            break;
-                        case Tools.RES_SRV_ERR:
-                            Log.d(TAG, "Automatic submission Failed (SERVER)");
-                            break;
-                        default:
-                            break;
+                    if (result != null) {
+                        switch (result) {
+                            case Tools.RES_OK:
+                                Log.d(TAG, "Automatic submission");
+                                deleteSubmittedRaw(start_time);
+                                break;
+                            case Tools.RES_FAIL:
+                                Log.d(TAG, "Automatic submission Failed");
+                                break;
+                            case Tools.RES_SRV_ERR:
+                                Log.d(TAG, "Automatic submission Failed (SERVER)");
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
