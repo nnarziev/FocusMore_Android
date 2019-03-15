@@ -39,15 +39,20 @@ public class ScreenReceiver extends BroadcastReceiver {
 
         int focus = sharedPref.getInt("FocusMode", -1);
 
+        Calendar calStart = Calendar.getInstance();
+        Calendar calEnd = Calendar.getInstance();
+        long start_time = sharedPref.getLong("data_start_timestamp", -1);
+        long end_time = System.currentTimeMillis();
+        long duration = (end_time - start_time) / 1000;
+
         //pref_other = context.getSharedPreferences("OtherApp", Activity.MODE_PRIVATE); //다른 앱(홈화면 포함) 실행 중인가?
         //editor_other = pref_other.edit();
-
 
         if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
             sharedPrefEditor.putInt("Typing", 1);
             sharedPrefEditor.apply();
 
-            if (focus == 1) {
+            if (focus == 1 && duration > 20) {
                 Log.d(TAG, "The smartphone screen is on (timer expired)");
                 Intent i = new Intent(context, LockScreen.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -97,16 +102,11 @@ public class ScreenReceiver extends BroadcastReceiver {
 
             //State Type 1 -> movement
             if (focus == 1 && !isInteractive) {
-                Calendar calStart = Calendar.getInstance();
-                Calendar calEnd = Calendar.getInstance();
-                long start_time = sharedPref.getLong("data_start_timestamp", -1);
-                long end_time = System.currentTimeMillis();
-                long duration = end_time - start_time;
                 calStart.setTimeInMillis(start_time);
                 calEnd.setTimeInMillis(end_time);
 
                 db = new DatabaseHelper(context); //reinit DB
-                submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) (duration / 1000), (short) 1, (int) 0, "", 0, "", "");
+                submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) duration, (short) 1, (int) 0, "", 0, "", "");
             }
 
 

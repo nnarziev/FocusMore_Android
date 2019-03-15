@@ -28,7 +28,7 @@ public class CountService extends Service implements SensorEventListener {
     private BroadcastReceiver mReceiver;
 
     private boolean isStop = false;
-    private int trigger_duration_in_second = 3;
+    private int trigger_duration_in_second = 30;
     private boolean shake_flag;
     private int shake_time = 0;
 

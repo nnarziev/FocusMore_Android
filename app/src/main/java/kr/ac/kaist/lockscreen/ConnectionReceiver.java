@@ -21,7 +21,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
         context = con;
         //init DB
         myDb = new DatabaseHelper(context);
-        myDb.testDB();
+        //myDb.testDB();
 
         if (Tools.isNetworkAvailable(context)) {
             try {

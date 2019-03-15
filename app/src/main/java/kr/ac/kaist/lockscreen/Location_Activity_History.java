@@ -43,7 +43,7 @@ public class Location_Activity_History extends Activity {
         setContentView(R.layout.activity_place_history);
 
         db = new DatabaseHelper(this); //init database
-        db.testDB();
+        //db.testDB();
 
         init();
         //initListView(); //init all available items

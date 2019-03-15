@@ -56,7 +56,7 @@ public class Location_Activity_List extends AppCompatActivity {
 
         //endregion
         db = new DatabaseHelper(this); //init database
-        db.testDB();
+        //db.testDB();
 
         itemFor = getIntent().getShortExtra("itemFor", (short) 0); //variable that tells whether this activity is opened from locations or activities list
 

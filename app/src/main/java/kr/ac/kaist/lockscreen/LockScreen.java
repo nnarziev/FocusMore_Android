@@ -71,6 +71,7 @@ public class LockScreen extends AppCompatActivity {
     private boolean ratio_flag = false;
     private int difference_time;
     private String isFocusing = "-1";
+    private boolean isHomeBtnPressed = true;
 
     List<String> titlesLocations;
     List<Integer> iconsLocations;
@@ -251,6 +252,7 @@ public class LockScreen extends AppCompatActivity {
                 Log.d("CLICKED", "Clicked button: " + ((TextView) layout.getChildAt(1)).getText().toString());
 
                 if ((int) layout.getTag() == ADD_NEW_ITEM_TAG) {
+                    isHomeBtnPressed = false;
                     Log.d(TAG, "NEW BUTTON CLICKED");
                     Intent intent = new Intent(LockScreen.this, Location_Activity_List.class);
                     intent.putExtra("itemFor", LOCATIONS);
@@ -351,6 +353,7 @@ public class LockScreen extends AppCompatActivity {
                 Log.d("CLICKED", "Clicked button: " + ((TextView) layout.getChildAt(1)).getText().toString());
 
                 if ((int) layout.getTag() == ADD_NEW_ITEM_TAG) {
+                    isHomeBtnPressed = false;
                     Log.d(TAG, "NEW BUTTON CLICKED");
                     Intent intent = new Intent(LockScreen.this, Location_Activity_List.class);
                     intent.putExtra("itemFor", ACTIVITIES);
@@ -402,17 +405,15 @@ public class LockScreen extends AppCompatActivity {
 
     public void restartServiceAndFinishActivity() {
         //region Init intent going to home screen
-        /*
         final Intent intentHome = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
         intentHome.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
         intentHome.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
-         */
         //endregion
 
         //region Restart the service and finish this activity
         stopService(intentService);
         startService(intentService);
-        //startActivity(intentHome); // Start the home activity
+        startActivity(intentHome); // Start the home activity
         sharedPrefEditor.putInt("FocusMode", 0);
         sharedPrefEditor.apply();
         finish();
@@ -420,7 +421,7 @@ public class LockScreen extends AppCompatActivity {
     }
 
     public void cancelClicked(View view) {
-
+        isHomeBtnPressed = false;
         //State Type 2 -> cancel
         Calendar calStart = Calendar.getInstance();
         Calendar calEnd = Calendar.getInstance();
@@ -461,6 +462,7 @@ public class LockScreen extends AppCompatActivity {
     }
 
     public void saveClicked(View view) {
+        isHomeBtnPressed = false;
         //State Type 3 -> ideal case
         RadioButton chosenLocationRB = findViewById(rgLocations.getCheckedRadioButtonId());
         RadioButton chosenActivityRB = findViewById(rgActivity.getCheckedRadioButtonId());
@@ -625,6 +627,7 @@ public class LockScreen extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        isHomeBtnPressed = true;
         //Log.i("onStart", "onStart");
         myThread = new Thread(new Runnable() {
             @Override
@@ -647,7 +650,7 @@ public class LockScreen extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-
+        isHomeBtnPressed = true;
         initLocations();
         initActivities();
 
@@ -707,21 +710,23 @@ public class LockScreen extends AppCompatActivity {
 
     @Override
     protected void onUserLeaveHint() {
-        Log.d(TAG, "Pressed home button!");
+        if (isHomeBtnPressed) {
+            Log.d(TAG, "Pressed home button!");
 
-        //State Type 2 -> cancel
-        Calendar calStart = Calendar.getInstance();
-        Calendar calEnd = Calendar.getInstance();
-        long start_time = sharedPref.getLong("data_start_timestamp", -1);
-        long end_time = System.currentTimeMillis();
-        calStart.setTimeInMillis(start_time);
-        calEnd.setTimeInMillis(end_time);
+            //State Type 2 -> cancel
+            Calendar calStart = Calendar.getInstance();
+            Calendar calEnd = Calendar.getInstance();
+            long start_time = sharedPref.getLong("data_start_timestamp", -1);
+            long end_time = System.currentTimeMillis();
+            calStart.setTimeInMillis(start_time);
+            calEnd.setTimeInMillis(end_time);
 
-        submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 2, 0, "", 0, "", "");
+            submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 2, 0, "", 0, "", "");
 
-        sharedPrefEditor.putInt("Shaked", 0);
-        sharedPrefEditor.apply();
-
+            sharedPrefEditor.putInt("Shaked", 0);
+            sharedPrefEditor.apply();
+        }
         super.onUserLeaveHint();
+
     }
 }
