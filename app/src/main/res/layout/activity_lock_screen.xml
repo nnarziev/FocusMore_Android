@@ -326,7 +326,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="30dp"
-        android:text="@string/question_1"
+        android:text="@string/question_2"
         android:textColor="@android:color/black"
         android:textSize="@dimen/question_txt_size" />
 
@@ -402,7 +402,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:text="@string/question_1"
+        android:text="@string/question_3"
         android:textColor="@android:color/black"
         android:textSize="@dimen/question_txt_size" />
 
