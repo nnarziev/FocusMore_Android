@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.app.Activity;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -16,10 +17,12 @@ public class SignInActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
+        Log.d(TAG, "onCreate: ");
         init();
     }
 
     // region Variables
+    public static final String TAG = "SignInActivity";
     private EditText userEmail;
     private EditText userPassword;
 
@@ -32,7 +35,7 @@ public class SignInActivity extends Activity {
         userEmail = findViewById(R.id.txt_email);
         userPassword = findViewById(R.id.txt_password);
         // endregion
-
+        Log.d(TAG, "init: ");
         if (loginPrefs == null)
             loginPrefs = getSharedPreferences("UserLogin", 0);
 
@@ -42,6 +45,7 @@ public class SignInActivity extends Activity {
     }
 
     public void signInClick(View view) {
+        Log.d(TAG, "Sign in clicked");
         signIn(userEmail.getText().toString(), userPassword.getText().toString());
     }
 
@@ -51,7 +55,7 @@ public class SignInActivity extends Activity {
     }
 
     public void signIn(String email, String password) {
-
+        Log.d(TAG, "Sign in function called");
         if (Tools.isNetworkAvailable(this))
             Tools.execute(new MyRunnable(
                     this,
@@ -68,7 +72,9 @@ public class SignInActivity extends Activity {
                     PHPRequest request;
                     try {
                         request = new PHPRequest(url);
+                        Log.d(TAG, "Before request");
                         String result = request.PhPtest(PHPRequest.SERV_CODE_SIGN_IN, email, password, null, null, null, null, null, null, null, null);
+                        Log.d(TAG, "After request: " + result);
 
                         if (result == null) {
                             if (loginPrefs.getString(SignInActivity.email, null) != null && loginPrefs.getString(SignInActivity.password, null) != null) {

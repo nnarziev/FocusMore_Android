@@ -52,7 +52,7 @@ public class ScreenReceiver extends BroadcastReceiver {
             sharedPrefEditor.putInt("Typing", 1);
             sharedPrefEditor.apply();
 
-            if (focus == 1 && duration > 20) {
+            if (focus == 1 && duration > 30) {
                 Log.d(TAG, "The smartphone screen is on (timer expired)");
                 Intent i = new Intent(context, LockScreen.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

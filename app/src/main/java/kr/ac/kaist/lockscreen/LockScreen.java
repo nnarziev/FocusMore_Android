@@ -125,7 +125,7 @@ public class LockScreen extends AppCompatActivity {
         db = new DatabaseHelper(this); // init database
         //db.testDB();
 
-        initUI();
+        initUIVars();
         initLocations(); //init all available location
         initActivities(); //init all available activities
 
@@ -150,7 +150,7 @@ public class LockScreen extends AppCompatActivity {
         };
     }
 
-    void initUI() {
+    void initUIVars() {
 
         //region Initialize UI variables
         txtCurrentTime = findViewById(R.id.current_time);
@@ -617,6 +617,9 @@ public class LockScreen extends AppCompatActivity {
             restartServiceAndFinishActivity();
 
         }
+
+        sharedPrefEditor.putInt("Flag", 0);
+        sharedPrefEditor.apply();
     }
 
     @Override
