@@ -29,9 +29,9 @@ public class ScreenReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context con, Intent intent) {
+        context = con;
 
         db = new DatabaseHelper(context);
-        context = con;
 
         sharedPref = context.getSharedPreferences("Modes", Activity.MODE_PRIVATE);
         sharedPrefEditor = sharedPref.edit();
@@ -121,7 +121,6 @@ public class ScreenReceiver extends BroadcastReceiver {
     public void submitRawData(long start_time, long end_time, int duration, short type, int location_img_id, String location_txt, int activity_img_id, String activity_txt, String otherESMResponse) {
         if (Tools.isNetworkAvailable(context)) {
             Tools.executeForService(new MyServiceRunnable(
-                    (Service) context,
                     context.getString(R.string.url_server, context.getString(R.string.server_ip)),
                     SignInActivity.loginPrefs.getString(SignInActivity.email, null),
                     start_time,
@@ -174,7 +173,7 @@ public class ScreenReceiver extends BroadcastReceiver {
                                     }
                                     break;
                                 case Tools.RES_FAIL:
-                                    Log.d(TAG, "Failed to submi");
+                                    Log.d(TAG, "Failed to submit");
                                     break;
                                 case Tools.RES_SRV_ERR:
                                     Log.d(TAG, "Failed to sign up. (SERVER SIDE ERROR)");
@@ -201,6 +200,8 @@ public class ScreenReceiver extends BroadcastReceiver {
             restartServiceAndGoHome();
 
         }
+        sharedPrefEditor.putInt("Flag", 0);
+        sharedPrefEditor.apply();
     }
 
     public void restartServiceAndGoHome() {

@@ -157,11 +157,9 @@ abstract class MyRunnable implements Runnable {
 }
 
 abstract class MyServiceRunnable implements Runnable {
-    MyServiceRunnable(Service srv, Object... args) {
-        Service service = srv;
+    MyServiceRunnable(Object... args) {
         this.args = Arrays.copyOf(args, args.length);
     }
-
     Object[] args;
 }
 

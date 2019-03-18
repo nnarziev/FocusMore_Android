@@ -145,6 +145,8 @@ public class NotificationService extends NotificationListenerService {
             restartServiceAndGoHome();
 
         }
+        sharedPrefEditor.putInt("Flag", 0);
+        sharedPrefEditor.apply();
     }
 
     public void restartServiceAndGoHome() {
