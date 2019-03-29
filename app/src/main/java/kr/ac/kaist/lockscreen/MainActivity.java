@@ -41,6 +41,8 @@ public class MainActivity extends Activity {
 
     Intent intentService;
 
+    TextView txt_service_check;
+
     private static final String ENABLED_NOTIFICATION_LISTENERS = "enabled_notification_listeners";
     private static final String ACTION_NOTIFICATION_LISTENER_SETTINGS = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS";
 
@@ -81,13 +83,14 @@ public class MainActivity extends Activity {
     }
 
     public void init() {
-        Button btn_reset_service = findViewById(R.id.resetButton);
+        Button btn_reset_service = findViewById(R.id.btn_srv_restart);
         Button btn_esm_history = findViewById(R.id.esmResult);
         Button btn_confirm = findViewById(R.id.confirm);
         Button btn_mng_locations = findViewById(R.id.btn_mng_locations);
         Button btn_mng_activities = findViewById(R.id.btn_mng_activities);
         final EditText txt_input_sec = findViewById(R.id.input_sec);
-        final TextView txt_sec = findViewById(R.id.textView2);
+        //final TextView txt_sec = findViewById(R.id.textView2);
+        txt_service_check = findViewById(R.id.txt_service_check);
 
         sharedPref = getSharedPreferences("Modes", Activity.MODE_PRIVATE);
         sharedPrefEditor = sharedPref.edit();
@@ -98,6 +101,7 @@ public class MainActivity extends Activity {
         //락스크린 서비스 실행(카운트도 같이 함)
         intentService = new Intent(this, CountService.class);
         startService(intentService);
+
 
         btn_confirm.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -142,6 +146,21 @@ public class MainActivity extends Activity {
             }
         });
 
+        btn_reset_service.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stopService(intentService);
+                startService(intentService);
+                Toast.makeText(MainActivity.this, "Service has been restarted!", Toast.LENGTH_SHORT).show();
+                if (!isServiceRunningCheck()){
+                    txt_service_check.setText(R.string.srv_is_not_running);
+                }
+                else{
+                    txt_service_check.setText(R.string.srv_is_running);
+                }
+            }
+        });
+
         sharedPrefEditor.putInt("OtherApp", 0);
         sharedPrefEditor.apply();
 
@@ -153,6 +172,12 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         registerReceiver(receiver, intentFilter);
+        if (!isServiceRunningCheck()){
+            txt_service_check.setText(R.string.srv_is_not_running);
+        }
+        else{
+            txt_service_check.setText(R.string.srv_is_running);
+        }
     }
 
     @Override
@@ -201,49 +226,14 @@ public class MainActivity extends Activity {
         return true;
     }
 
-    public void sendEmail() {
-        try {
-            String[] address = {"nnarziev@gmail.com"};
-            Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "락스크린 실험 결과 입니다 [이름:         ]");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "결과 입니다.");
-            shareIntent.putExtra(Intent.EXTRA_EMAIL, address);
-            ArrayList<Uri> uris = new ArrayList<Uri>();
-            String shareName = new String(getFilesDir().getAbsolutePath() + "/Experiment_result.txt");
-            File shareFile = new File(shareName);
-            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "kr.ac.kaist.lockscreen.fileprovider", shareFile);
-            uris.add(contentUri);
-            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            String msgStr = "Share...?";
-            startActivity(Intent.createChooser(shareIntent, msgStr));
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(), "에러가 발생했습니다.", Toast.LENGTH_SHORT).show();
-        }
-
-        /*
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("plain/text");
-        String[] address = {"kiyeob4416@gmail.com"}; //주소를 넣어두면 미리 주소가 들어가 있다.
-        intent.putExtra(Intent.EXTRA_EMAIL, address);
-        intent.putExtra(Intent.EXTRA_SUBJECT, "실험");
-        intent.putExtra(Intent.EXTRA_TEXT, "보낼 내용");
-        //intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:/mnt/sdcard/test.jpg")); //파일 첨부
-        startActivity(intent);
-        */
-
-    }
-
     private boolean isNotificationServiceEnabled() {
         String pkgName = getPackageName();
         final String flat = Settings.Secure.getString(getContentResolver(),
                 ENABLED_NOTIFICATION_LISTENERS);
         if (!TextUtils.isEmpty(flat)) {
             final String[] names = flat.split(":");
-            for (int i = 0; i < names.length; i++) {
-                final ComponentName cn = ComponentName.unflattenFromString(names[i]);
+            for (String name : names) {
+                final ComponentName cn = ComponentName.unflattenFromString(name);
                 if (cn != null) {
                     if (TextUtils.equals(pkgName, cn.getPackageName())) {
                         return true;
@@ -287,9 +277,40 @@ public class MainActivity extends Activity {
         finish();
     }
 
-    public void restartServiceClick(MenuItem item) {
-        stopService(intentService);
-        startService(intentService);
-        Toast.makeText(this, "Service has been restarted!", Toast.LENGTH_SHORT).show();
+    //region Temporary Commented methods
+     /*
+    public void sendEmail() {
+        try {
+            String[] address = {"nnarziev@gmail.com"};
+            Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "락스크린 실험 결과 입니다 [이름:         ]");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "결과 입니다.");
+            shareIntent.putExtra(Intent.EXTRA_EMAIL, address);
+            ArrayList<Uri> uris = new ArrayList<Uri>();
+            String shareName = getFilesDir().getAbsolutePath() + "/Experiment_result.txt";
+            File shareFile = new File(shareName);
+            Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "kr.ac.kaist.lockscreen.fileprovider", shareFile);
+            uris.add(contentUri);
+            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            String msgStr = "Share...?";
+            startActivity(Intent.createChooser(shareIntent, msgStr));
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "에러가 발생했습니다.", Toast.LENGTH_SHORT).show();
+        }
+
+
+        //Intent intent = new Intent(Intent.ACTION_SEND);
+        //intent.setType("plain/text");
+        //String[] address = {"kiyeob4416@gmail.com"}; //주소를 넣어두면 미리 주소가 들어가 있다.
+        //intent.putExtra(Intent.EXTRA_EMAIL, address);
+        //intent.putExtra(Intent.EXTRA_SUBJECT, "실험");
+        //intent.putExtra(Intent.EXTRA_TEXT, "보낼 내용");
+        //intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:/mnt/sdcard/test.jpg")); //파일 첨부
+        //startActivity(intent);
     }
+    */
+    //endregion
 }

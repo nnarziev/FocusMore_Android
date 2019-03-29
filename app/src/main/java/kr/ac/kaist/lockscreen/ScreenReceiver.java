@@ -26,6 +26,7 @@ public class ScreenReceiver extends BroadcastReceiver {
     protected SharedPreferences sharedPref = null;
     protected SharedPreferences.Editor sharedPrefEditor = null;
     private Context context;
+    private static final int screen_appear_threshold = 30;
 
     @Override
     public void onReceive(Context con, Intent intent) {
@@ -52,7 +53,7 @@ public class ScreenReceiver extends BroadcastReceiver {
             sharedPrefEditor.putInt("Typing", 1);
             sharedPrefEditor.apply();
 
-            if (focus == 1 && duration > 30) {
+            if (focus == 1 && duration > screen_appear_threshold) {
                 Log.d(TAG, "The smartphone screen is on (timer expired)");
                 Intent i = new Intent(context, LockScreen.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

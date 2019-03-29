@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import java.net.MalformedURLException;
 import java.util.Calendar;
+import java.util.Map;
 
 
 public class NotificationService extends NotificationListenerService {
@@ -36,7 +37,6 @@ public class NotificationService extends NotificationListenerService {
 
         //Service
         intentService = new Intent(this, CountService.class);
-
     }
 
     @Override
@@ -52,20 +52,8 @@ public class NotificationService extends NotificationListenerService {
     public void onNotificationRemoved(StatusBarNotification sbn, RankingMap rankingMap, int reason) {
         //If notification was clicked save the state as type1 and restart the service
         if (reason == NotificationListenerService.REASON_CLICK) {
-            //State Type 1 -> notification click
-            Calendar calStart = Calendar.getInstance();
-            Calendar calEnd = Calendar.getInstance();
-            long start_time = sharedPref.getLong("data_start_timestamp", -1);
-            long end_time = System.currentTimeMillis();
-            long duration = end_time - start_time;
-            calStart.setTimeInMillis(start_time);
-            calEnd.setTimeInMillis(end_time);
-
-            db = new DatabaseHelper(this); //reinit DB
-            submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) (duration / 1000), (short) 1, 0, "", 0, "", "");
-
+            LockScreen.action = LockScreen.Action.ACTION_NOTIFICATION_CLIKC;
         }
-
     }
 
     public void submitRawData(long start_time, long end_time, int duration, short type, int location_img_id, String location_txt, int activity_img_id, String activity_txt, String distraction) {

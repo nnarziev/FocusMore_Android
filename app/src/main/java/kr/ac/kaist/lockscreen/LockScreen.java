@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
+import java.util.concurrent.Executors;
 
 import static kr.ac.kaist.lockscreen.Adapters.GridAdapter.ADD_NEW_ITEM_TAG;
 import static kr.ac.kaist.lockscreen.DatabaseHelper.ACTIVITIES;
@@ -65,13 +67,21 @@ public class LockScreen extends AppCompatActivity {
     private final int addIcon = R.drawable.ic_add;
     //endregion
 
+    // region Constants
+    enum Action {
+        ACTION_HOME_CLIKC,
+        ACTION_NOTIFICATION_CLIKC,
+        ACTION_BUTTON_CLIKC
+    }
+    // endregion
+
     //region Variables
     private boolean isService = false; // 서비스 중인 확인용
     private boolean isStop = false;
     private boolean ratio_flag = false;
     private int difference_time;
     private String isFocusing = "-1";
-    private boolean isHomeBtnPressed = true;
+    static Action action;
 
     List<String> titlesLocations;
     List<Integer> iconsLocations;
@@ -252,7 +262,7 @@ public class LockScreen extends AppCompatActivity {
                 Log.d("CLICKED", "Clicked button: " + ((TextView) layout.getChildAt(1)).getText().toString());
 
                 if ((int) layout.getTag() == ADD_NEW_ITEM_TAG) {
-                    isHomeBtnPressed = false;
+                    action = Action.ACTION_BUTTON_CLIKC;
                     Log.d(TAG, "NEW BUTTON CLICKED");
                     Intent intent = new Intent(LockScreen.this, Location_Activity_List.class);
                     intent.putExtra("itemFor", LOCATIONS);
@@ -353,7 +363,8 @@ public class LockScreen extends AppCompatActivity {
                 Log.d("CLICKED", "Clicked button: " + ((TextView) layout.getChildAt(1)).getText().toString());
 
                 if ((int) layout.getTag() == ADD_NEW_ITEM_TAG) {
-                    isHomeBtnPressed = false;
+                    action = Action.ACTION_BUTTON_CLIKC;
+                    ;
                     Log.d(TAG, "NEW BUTTON CLICKED");
                     Intent intent = new Intent(LockScreen.this, Location_Activity_List.class);
                     intent.putExtra("itemFor", ACTIVITIES);
@@ -404,24 +415,28 @@ public class LockScreen extends AppCompatActivity {
     }
 
     public void restartServiceAndFinishActivity() {
-        //region Init intent going to home screen
-        final Intent intentHome = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
-        intentHome.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
-        intentHome.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
-        //endregion
 
-        //region Restart the service and finish this activity
+        //region Restart the service
         stopService(intentService);
         startService(intentService);
-        startActivity(intentHome); // Start the home activity
         sharedPrefEditor.putInt("FocusMode", 0);
         sharedPrefEditor.apply();
-        finish();
         //endregion
+
+        Log.e(TAG, "restartServiceAndFinishActivity: " + action);
+        if (action != Action.ACTION_NOTIFICATION_CLIKC) {
+            final Intent intentHome = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
+            intentHome.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
+            intentHome.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
+            startActivity(intentHome); // Start the home activity
+        }
+
+
     }
 
     public void cancelClicked(View view) {
-        isHomeBtnPressed = false;
+        action = Action.ACTION_BUTTON_CLIKC;
+        ;
         //State Type 2 -> cancel
         Calendar calStart = Calendar.getInstance();
         Calendar calEnd = Calendar.getInstance();
@@ -462,7 +477,8 @@ public class LockScreen extends AppCompatActivity {
     }
 
     public void saveClicked(View view) {
-        isHomeBtnPressed = false;
+        action = Action.ACTION_BUTTON_CLIKC;
+        ;
         //State Type 3 -> ideal case
         RadioButton chosenLocationRB = findViewById(rgLocations.getCheckedRadioButtonId());
         RadioButton chosenActivityRB = findViewById(rgActivity.getCheckedRadioButtonId());
@@ -610,9 +626,9 @@ public class LockScreen extends AppCompatActivity {
             boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_img_id, location_txt, activity_img_id, activity_txt, otherESMResponse);
             Log.d(TAG, "No connection case");
             if (isInserted) {
-                Toast.makeText(getApplicationContext(), "State saved", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "State saved");
             } else
-                Toast.makeText(getApplicationContext(), "Failed to save", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Failed to save");
 
             restartServiceAndFinishActivity();
 
@@ -620,6 +636,7 @@ public class LockScreen extends AppCompatActivity {
 
         sharedPrefEditor.putInt("Flag", 0);
         sharedPrefEditor.apply();
+
     }
 
     @Override
@@ -630,7 +647,7 @@ public class LockScreen extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        isHomeBtnPressed = true;
+        ;
         //Log.i("onStart", "onStart");
         myThread = new Thread(new Runnable() {
             @Override
@@ -653,7 +670,8 @@ public class LockScreen extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        isHomeBtnPressed = true;
+        Log.e(TAG, "onResume: called");
+        action = Action.ACTION_HOME_CLIKC;
         initLocations();
         initActivities();
 
@@ -713,23 +731,71 @@ public class LockScreen extends AppCompatActivity {
 
     @Override
     protected void onUserLeaveHint() {
-        if (isHomeBtnPressed) {
-            Log.d(TAG, "Pressed home button!");
+        Log.e(TAG, "onUserLeaveHint: called");
 
-            //State Type 2 -> cancel
-            Calendar calStart = Calendar.getInstance();
-            Calendar calEnd = Calendar.getInstance();
-            long start_time = sharedPref.getLong("data_start_timestamp", -1);
-            long end_time = System.currentTimeMillis();
-            calStart.setTimeInMillis(start_time);
-            calEnd.setTimeInMillis(end_time);
+        Executors.newCachedThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-            submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 2, 0, "", 0, "", "");
+                Calendar calStart, calEnd;
+                long start_time, end_time;
+                switch (action) {
+                    case ACTION_HOME_CLIKC:
+                        Log.d(TAG, "Pressed home button!");
 
-            sharedPrefEditor.putInt("Shaked", 0);
-            sharedPrefEditor.apply();
-        }
+                        //State Type 2 -> cancel
+                        calStart = Calendar.getInstance();
+                        calEnd = Calendar.getInstance();
+                        start_time = sharedPref.getLong("data_start_timestamp", -1);
+                        end_time = System.currentTimeMillis();
+                        calStart.setTimeInMillis(start_time);
+                        calEnd.setTimeInMillis(end_time);
+
+                        submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 2, 0, "", 0, "", "");
+
+                        sharedPrefEditor.putInt("Shaked", 0);
+                        sharedPrefEditor.apply();
+                        break;
+                    case ACTION_NOTIFICATION_CLIKC:
+                        int flag = sharedPref.getInt("Flag", -1);
+                        int focus = sharedPref.getInt("FocusMode", -1);
+
+                        Map<String, ?> allEntries = sharedPref.getAll();
+                        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+                            Log.d(TAG, "MAP vals: " + entry.getKey() + ": " + entry.getValue().toString());
+                        }
+
+                        //Log.d(TAG, "Focus MODE: " + focus + " " + flag);
+                        if (focus == 1 && flag == 1) {
+                            Log.d(TAG, "FROM LOCK SCREEN");
+                            //State Type 1 -> notification click
+                            calStart = Calendar.getInstance();
+                            calEnd = Calendar.getInstance();
+                            start_time = sharedPref.getLong("data_start_timestamp", -1);
+                            end_time = System.currentTimeMillis();
+                            long duration = end_time - start_time;
+                            calStart.setTimeInMillis(start_time);
+                            calEnd.setTimeInMillis(end_time);
+
+                            db = new DatabaseHelper(LockScreen.this); //reinit DB
+                            submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) (duration / 1000), (short) 1, 0, "", 0, "", "");
+                        } else
+                            Log.d(TAG, "FROM ELSE");
+                        break;
+                    case ACTION_BUTTON_CLIKC:
+                        Log.e(TAG, "ACTION_BUTTON_CLIKC: called");
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
         super.onUserLeaveHint();
-
     }
 }

@@ -17,7 +17,7 @@
         android:layout_marginTop="2dp"
         android:text="@string/dummy"
         android:textColor="@android:color/black"
-        android:textSize="30sp"
+        android:textSize="20sp"
         android:textStyle="bold" />
 
     <TextView
@@ -27,7 +27,7 @@
         android:layout_gravity="center"
         android:text="@string/dummy"
         android:textColor="@android:color/black"
-        android:textSize="30sp"
+        android:textSize="20sp"
         android:textStyle="bold" />
 
     <TextView
@@ -490,6 +490,7 @@
         android:layout_marginEnd="10dp"
         android:hint="@string/hint_question_4"
         android:inputType="text"
+        android:imeOptions="actionDone"
         android:textColor="@android:color/black"
         android:textSize="14sp"
         tools:ignore="Autofill" />

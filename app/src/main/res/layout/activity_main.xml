@@ -45,20 +45,21 @@
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/resetButton"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/txt_service_check"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="16dp"
-        android:text="restart service"
-        android:visibility="gone" />
+        android:gravity="center"
+        android:layout_marginTop="15dp"
+        android:textSize="20sp"
+        android:textColor="@android:color/black"
+        android:text="@string/dummy"/>
 
     <Button
         android:id="@+id/esmResult"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="50dp"
+        android:padding="20dp"
         android:background="@drawable/bg_btn"
         android:layout_gravity="center"
         android:layout_margin="20dp"
@@ -68,7 +69,7 @@
         android:id="@+id/btn_mng_locations"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="50dp"
+        android:padding="20dp"
         android:background="@drawable/bg_btn"
         android:layout_gravity="center"
         android:layout_margin="20dp"
@@ -78,11 +79,21 @@
         android:id="@+id/btn_mng_activities"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="50dp"
+        android:padding="20dp"
         android:layout_margin="20dp"
         android:layout_gravity="center"
         android:background="@drawable/bg_btn"
         android:text="manage activities" />
+
+    <Button
+        android:id="@+id/btn_srv_restart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:layout_margin="20dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_btn"
+        android:text="restart the service" />
 
     <Button
         android:id="@+id/confirm"

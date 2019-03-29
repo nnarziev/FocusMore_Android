@@ -4,12 +4,6 @@
     tools:context="kr.ac.kaist.lockscreen.LockScreen">
 
     <item
-        android:id="@+id/action_restart"
-        android:onClick="restartServiceClick"
-        android:title="@string/service_restart"
-        app:showAsAction="never" />
-
-    <item
         android:id="@+id/action_logout"
         android:onClick="logoutClick"
         android:title="@string/log_out"

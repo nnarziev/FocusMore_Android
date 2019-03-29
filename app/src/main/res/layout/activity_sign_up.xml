@@ -60,6 +60,16 @@
         android:textColor="@color/colorPrimaryDark"
         android:textColorHint="@android:color/darker_gray" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        android:text="Note: password length should be more than 6 or less than 16"
+        android:textColor="@color/colorPrimaryDark" />
+
     <Button
         android:id="@+id/btn_register"
         android:layout_width="match_parent"
