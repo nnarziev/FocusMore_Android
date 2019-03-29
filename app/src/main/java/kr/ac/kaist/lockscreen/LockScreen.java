@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.concurrent.Executors;
 
 import static kr.ac.kaist.lockscreen.Adapters.GridAdapter.ADD_NEW_ITEM_TAG;
@@ -63,8 +62,7 @@ public class LockScreen extends AppCompatActivity {
     private int drawableArrowDown;
     private int drawableArrowUp;
 
-    private final String addTxt = "Add new";
-    private final int addIcon = R.drawable.ic_add;
+    static final String addTxt = "Add new";
     //endregion
 
     // region Constants
@@ -84,9 +82,7 @@ public class LockScreen extends AppCompatActivity {
     static Action action;
 
     List<String> titlesLocations;
-    List<Integer> iconsLocations;
     List<String> titlesActivity;
-    List<Integer> iconsActivity;
 
     Map<String, Integer> durationsLocations;
     Map<String, Integer> durationsActivity;
@@ -215,7 +211,6 @@ public class LockScreen extends AppCompatActivity {
 
     public void initLocations() {
         titlesLocations = new ArrayList<>();
-        iconsLocations = new ArrayList<>();
         durationsLocations = new HashMap<>();
 
         //Init Locations
@@ -225,30 +220,25 @@ public class LockScreen extends AppCompatActivity {
         }
 
         while (res.moveToNext()) {
-            if (res.getShort(3) == 1) {
+            if (res.getShort(2) == 1) {
                 titlesLocations.add(res.getString(1));
-                iconsLocations.add(res.getInt(2));
-                durationsLocations.put(res.getString(1), res.getInt(4));
+                durationsLocations.put(res.getString(1), res.getInt(3));
             }
         }
 
         //Only for 'add new' button
         titlesLocations.add(addTxt);
-        iconsLocations.add(addIcon);
 
-        //init radio group icons
+        //init radio group
         rgLocations = findViewById(R.id.rg_locations);
         int indexOfLocations = 0;
         for (; indexOfLocations < rgLocations.getChildCount() - 1; indexOfLocations++) {
             RadioButton rb = ((RadioButton) rgLocations.getChildAt(indexOfLocations));
             rb.setText(titlesLocations.get(0));
-            rb.setCompoundDrawablesWithIntrinsicBounds(0, iconsLocations.get(0), 0, 0);
-            rb.setTag(iconsLocations.get(0)); //passing image resource id as a tag
             titlesLocations.remove(0);
-            iconsLocations.remove(0);
         }
 
-        Adapters.GridAdapter adapterLocations = new Adapters.GridAdapter(LockScreen.this, iconsLocations, titlesLocations);
+        Adapters.GridAdapter adapterLocations = new Adapters.GridAdapter(LockScreen.this, titlesLocations);
 
         final RadioButton moreBtnLocation = findViewById(R.id.location_btn_4);
         imgArrowLocation = findViewById(R.id.arrow_location);
@@ -259,7 +249,7 @@ public class LockScreen extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 LinearLayout layout = (LinearLayout) view;
-                Log.d("CLICKED", "Clicked button: " + ((TextView) layout.getChildAt(1)).getText().toString());
+                Log.d("CLICKED", "Clicked button: " + ((TextView) layout.getChildAt(0)).getText().toString());
 
                 if ((int) layout.getTag() == ADD_NEW_ITEM_TAG) {
                     action = Action.ACTION_BUTTON_CLIKC;
@@ -270,9 +260,7 @@ public class LockScreen extends AppCompatActivity {
                 } else {
                     gvLocations.setVisibility(View.GONE);
                     moreBtnLocation.setText(titlesLocations.get(i));
-                    moreBtnLocation.setCompoundDrawablesWithIntrinsicBounds(0, iconsLocations.get(i), 0, 0);
                     moreBtnLocation.setChecked(true);
-                    moreBtnLocation.setTag(iconsLocations.get(i)); //passing image resource id as a tag
                     imgArrowLocation.setImageResource(drawableArrowDown);
                 }
 
@@ -316,7 +304,6 @@ public class LockScreen extends AppCompatActivity {
 
     public void initActivities() {
         titlesActivity = new ArrayList<>();
-        iconsActivity = new ArrayList<>();
         durationsActivity = new HashMap<>();
 
         //Init Activities
@@ -326,30 +313,25 @@ public class LockScreen extends AppCompatActivity {
         }
 
         while (res.moveToNext()) {
-            if (res.getShort(3) == 1) {
+            if (res.getShort(2) == 1) {
                 titlesActivity.add(res.getString(1));
-                iconsActivity.add(res.getInt(2));
-                durationsActivity.put(res.getString(1), res.getInt(4));
+                durationsActivity.put(res.getString(1), res.getInt(3));
             }
         }
 
         //Only for add new button
         titlesActivity.add(addTxt);
-        iconsActivity.add(addIcon);
 
-        //init radio group icons
+        //init radio group
         rgActivity = findViewById(R.id.rg_activity);
         int indexOfActivitiy = 0;
         for (; indexOfActivitiy < rgActivity.getChildCount() - 1; indexOfActivitiy++) {
             RadioButton rb = ((RadioButton) rgActivity.getChildAt(indexOfActivitiy));
             rb.setText(titlesActivity.get(0));
-            rb.setCompoundDrawablesWithIntrinsicBounds(0, iconsActivity.get(0), 0, 0);
-            rb.setTag(iconsActivity.get(0)); //passing image resource id as a tag
             titlesActivity.remove(0);
-            iconsActivity.remove(0);
         }
 
-        Adapters.GridAdapter adapterActivity = new Adapters.GridAdapter(LockScreen.this, iconsActivity, titlesActivity);
+        Adapters.GridAdapter adapterActivity = new Adapters.GridAdapter(LockScreen.this, titlesActivity);
 
         final RadioButton moreBtnActivity = findViewById(R.id.activity_btn_4);
         imgArrowActivity = findViewById(R.id.arrow_activity);
@@ -360,7 +342,7 @@ public class LockScreen extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 LinearLayout layout = (LinearLayout) view;
-                Log.d("CLICKED", "Clicked button: " + ((TextView) layout.getChildAt(1)).getText().toString());
+                Log.d("CLICKED", "Clicked button: " + ((TextView) layout.getChildAt(0)).getText().toString());
 
                 if ((int) layout.getTag() == ADD_NEW_ITEM_TAG) {
                     action = Action.ACTION_BUTTON_CLIKC;
@@ -372,9 +354,7 @@ public class LockScreen extends AppCompatActivity {
                 } else {
                     gvActivity.setVisibility(View.GONE);
                     moreBtnActivity.setText(titlesActivity.get(i));
-                    moreBtnActivity.setCompoundDrawablesWithIntrinsicBounds(0, iconsActivity.get(i), 0, 0);
                     moreBtnActivity.setChecked(true);
-                    moreBtnActivity.setTag(iconsActivity.get(i)); //passing image resource id as a tag
                     imgArrowActivity.setImageResource(drawableArrowDown);
                 }
             }
@@ -445,7 +425,7 @@ public class LockScreen extends AppCompatActivity {
         calStart.setTimeInMillis(start_time);
         calEnd.setTimeInMillis(end_time);
 
-        submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 2, 0, "", 0, "", "");
+        submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 2, "", "", "");
 
         sharedPrefEditor.putInt("Shaked", 0);
         sharedPrefEditor.apply();
@@ -496,7 +476,7 @@ public class LockScreen extends AppCompatActivity {
         calEnd.setTimeInMillis(end_time);
 
         String restResultData = String.format(Locale.ENGLISH, "%d%d%d%s", seekBarQ1.getProgress() + 1, seekBarQ2.getProgress() + 1, seekBarQ3.getProgress() + 1, editTextQ4.getText());
-        submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 3, (int) chosenLocationRB.getTag(), chosenLocationRB.getText().toString(), (int) chosenActivityRB.getTag(), chosenActivityRB.getText().toString(), restResultData);
+        submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 3, chosenLocationRB.getText().toString(), chosenActivityRB.getText().toString(), restResultData);
 
         //region Updating accumulated duration time for location and activity
         for (Map.Entry<String, Integer> entry : durationsActivity.entrySet()) {
@@ -538,7 +518,7 @@ public class LockScreen extends AppCompatActivity {
         return false;
     }
 
-    public void submitRawData(long start_time, long end_time, int duration, short type, int location_img_id, String location_txt, int activity_img_id, String activity_txt, String otherESMResponse) {
+    public void submitRawData(long start_time, long end_time, int duration, short type, String location_txt, String activity_txt, String otherESMResponse) {
         if (Tools.isNetworkAvailable(this)) {
             Log.d(TAG, "With connection case");
             Tools.execute(new MyRunnable(
@@ -549,9 +529,7 @@ public class LockScreen extends AppCompatActivity {
                     end_time,
                     duration,
                     type,
-                    location_img_id,
                     location_txt,
-                    activity_img_id,
                     activity_txt,
                     otherESMResponse
 
@@ -564,18 +542,16 @@ public class LockScreen extends AppCompatActivity {
                     long end_time = (long) args[3];
                     int duration = (int) args[4];
                     short type = (short) args[5];
-                    int location_img_id = (int) args[6];
-                    String location_txt = (String) args[7];
-                    int activity_img_id = (int) args[8];
-                    String activity_txt = (String) args[9];
-                    String otherESMResp = (String) args[10];
+                    String location_txt = (String) args[6];
+                    String activity_txt = (String) args[7];
+                    String otherESMResp = (String) args[8];
 
                     PHPRequest request;
                     try {
                         request = new PHPRequest(url);
-                        String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, String.valueOf(location_img_id), activity_txt, String.valueOf(activity_img_id), String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(otherESMResp));
+                        String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, String.valueOf(""), activity_txt, String.valueOf(""), String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(otherESMResp)); //TODO: remove empty strings for icons
                         if (result == null) {
-                            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_img_id, location_txt, activity_img_id, activity_txt, otherESMResp);
+                            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_txt, activity_txt, otherESMResp);
                             Log.d(TAG, "Case when Server is OFF");
                             if (isInserted) {
                                 Log.d(TAG, "State saved to local");
@@ -623,7 +599,7 @@ public class LockScreen extends AppCompatActivity {
                 }
             });
         } else {
-            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_img_id, location_txt, activity_img_id, activity_txt, otherESMResponse);
+            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_txt, activity_txt, otherESMResponse);
             Log.d(TAG, "No connection case");
             if (isInserted) {
                 Log.d(TAG, "State saved");
@@ -709,7 +685,7 @@ public class LockScreen extends AppCompatActivity {
                 calStart.setTimeInMillis(start_time);
                 calEnd.setTimeInMillis(end_time);
 
-                submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 1, 0, "", 0, "", "");
+                submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 1, "", "", "");
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -756,7 +732,7 @@ public class LockScreen extends AppCompatActivity {
                         calStart.setTimeInMillis(start_time);
                         calEnd.setTimeInMillis(end_time);
 
-                        submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 2, 0, "", 0, "", "");
+                        submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 2, "", "", "");
 
                         sharedPrefEditor.putInt("Shaked", 0);
                         sharedPrefEditor.apply();
@@ -783,7 +759,7 @@ public class LockScreen extends AppCompatActivity {
                             calEnd.setTimeInMillis(end_time);
 
                             db = new DatabaseHelper(LockScreen.this); //reinit DB
-                            submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) (duration / 1000), (short) 1, 0, "", 0, "", "");
+                            submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) (duration / 1000), (short) 1, "", "", "");
                         } else
                             Log.d(TAG, "FROM ELSE");
                         break;

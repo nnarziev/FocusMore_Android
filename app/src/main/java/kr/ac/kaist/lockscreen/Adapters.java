@@ -1,6 +1,5 @@
 package kr.ac.kaist.lockscreen;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,20 +21,18 @@ import java.util.Locale;
 
 class Adapters {
 
-    //Adapter for GridView of icons+text
+    //Adapter for GridView of texts
     public static class GridAdapter extends BaseAdapter {
 
-        public static int USUAL_ITEM_TAG = 0;
-        public static int ADD_NEW_ITEM_TAG = 1;
-        private List<Integer> icons;
+        static int USUAL_ITEM_TAG = 0;
+        static int ADD_NEW_ITEM_TAG = 1;
         private List<String> titles;
         private Context context;
         private LayoutInflater inflater;
 
-        public GridAdapter(Context context, List<Integer> icons, List<String> titles) {
+        GridAdapter(Context context, List<String> titles) {
             this.context = context;
             this.titles = titles;
-            this.icons = icons;
         }
 
         @Override
@@ -64,15 +61,12 @@ class Adapters {
                 if (inflater != null) {
                     gridView = inflater.inflate(R.layout.button_layout, null);
                 }
-
             }
 
-            ImageView img = gridView.findViewById(R.id.grid_item_img);
             TextView txt = gridView.findViewById(R.id.grid_item_txt);
-            img.setImageResource(icons.get(i));
             txt.setText(titles.get(i));
 
-            if (icons.get(i) == R.drawable.ic_add) {
+            if (titles.get(i).equals(LockScreen.addTxt)) {
                 gridView.setTag(ADD_NEW_ITEM_TAG);
             } else {
                 gridView.setTag(USUAL_ITEM_TAG);
@@ -86,13 +80,11 @@ class Adapters {
     public static class ListAdapter extends ArrayAdapter<ListDataModel> {
 
         public static final String TAG = "ListAdapter";
-        private ArrayList<ListDataModel> dataset;
         LayoutInflater inflater;
         Context context;
 
         private static class ViewHolder {
             CheckBox checkBox;
-            ImageView icon;
             TextView text;
             ImageView editItem;
             ImageView deleteItem;
@@ -100,7 +92,6 @@ class Adapters {
 
         ListAdapter(Context context, ArrayList<ListDataModel> data) {
             super(context, R.layout.row_item, data);
-            this.dataset = data;
             this.context = context;
         }
 
@@ -120,7 +111,6 @@ class Adapters {
                 viewHolder = new ViewHolder();
                 inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = inflater.inflate(R.layout.row_item, parent, false);
-                viewHolder.icon = convertView.findViewById(R.id.icon_activity);
                 viewHolder.text = convertView.findViewById(R.id.choice_text);
                 viewHolder.checkBox = convertView.findViewById(R.id.check_box);
                 viewHolder.editItem = convertView.findViewById(R.id.edit);
@@ -158,66 +148,8 @@ class Adapters {
 
             viewHolder.checkBox.setChecked(dataModel.getBookmark());
             viewHolder.text.setText(dataModel.getText());
-            viewHolder.icon.setImageResource(dataModel.getIconResource());
             // Return the completed view to render on screen
             return result;
-        }
-    }
-
-    //Adapter for GridView of images while customization
-    public static class ImagesGridAdapter extends BaseAdapter {
-        private Integer[] icons = {
-                R.drawable.icon_location_home,
-                R.drawable.icon_activity_rest,
-                R.drawable.icon_location_cafe,
-                R.drawable.icon_activity_communicate,
-                R.drawable.icon_location_library,
-                R.drawable.icon_activity_eat,
-                R.drawable.icon_location_office,
-                R.drawable.icon_activity_sleep,
-                R.drawable.icon_location_restaurant,
-                R.drawable.icon_activity_study,
-                R.drawable.icon_location_school,
-                R.drawable.icon_activity_workout,
-                R.drawable.icon_activity_work
-        };
-
-        private Activity activity;
-
-        public ImagesGridAdapter(Activity activity) {
-            this.activity = activity;
-        }
-
-        @Override
-        public int getCount() {
-            return icons.length;
-        }
-
-        @Override
-        public Object getItem(int i) {
-            return i;
-        }
-
-        @Override
-        public long getItemId(int i) {
-            return i;
-        }
-
-        @Override
-        public View getView(int i, View view, ViewGroup viewGroup) {
-            //chosenIcon = activity.findViewById(R.id.ic_chosen);
-
-            final ImageView imageView;
-            if (view == null) {
-                imageView = new ImageView(activity);
-                imageView.setLayoutParams(new ViewGroup.LayoutParams(100, 100));
-            } else {
-                imageView = (ImageView) view;
-            }
-            imageView.setImageResource(icons[i]);
-            imageView.setTag(icons[i]);
-
-            return imageView;
         }
     }
 
@@ -225,9 +157,8 @@ class Adapters {
     public static class HistoryListAdapter extends ArrayAdapter<HistoryListDataModel> {
 
         public static final String TAG = "HistoryListAdapter";
-        private ArrayList<HistoryListDataModel> dataset;
         LayoutInflater inflater;
-        boolean isDetailed = false;
+        boolean isDetailed;
         Context context;
 
         private static class ViewHolder {
@@ -235,9 +166,7 @@ class Adapters {
             LinearLayout detailedViewOthersHidden;
             TextView start_time;
             TextView end_time;
-            ImageView iconActivity;
             TextView textActivity;
-            ImageView iconLocation;
             TextView textLocation;
             TextView duration;
             ImageView edit;
@@ -247,7 +176,6 @@ class Adapters {
             super(context, R.layout.history_row_item, data);
             this.context = context;
             this.isDetailed = isDetailed;
-            this.dataset = data;
 
         }
 
@@ -271,9 +199,7 @@ class Adapters {
                 viewHolder.start_time = convertView.findViewById(R.id.time_start);
                 viewHolder.end_time = convertView.findViewById(R.id.time_end);
                 viewHolder.duration = convertView.findViewById(R.id.activity_duration);
-                viewHolder.iconActivity = convertView.findViewById(R.id.icon_activity);
                 viewHolder.textActivity = convertView.findViewById(R.id.text_activity);
-                viewHolder.iconLocation = convertView.findViewById(R.id.icon_location);
                 viewHolder.textLocation = convertView.findViewById(R.id.text_location);
                 viewHolder.edit = convertView.findViewById(R.id.edit);
 
@@ -319,10 +245,7 @@ class Adapters {
             }
             //endregion
 
-
-            viewHolder.iconActivity.setImageResource(dataModel.getIconActivity());
             viewHolder.textActivity.setText(dataModel.getTextActivity());
-            viewHolder.iconLocation.setImageResource(dataModel.getIconLocation());
             viewHolder.textLocation.setText(dataModel.getTextLocation());
 
 

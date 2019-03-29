@@ -44,7 +44,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
 
         if (count > 0) {
             for (String[] raw : results_temp) {
-                submitRaw(Long.parseLong(raw[0]), Long.parseLong(raw[1]), Integer.parseInt(raw[2]), Short.parseShort(raw[3]), Integer.parseInt(raw[4]), raw[5], Integer.parseInt(raw[6]), raw[7], raw[8]);
+                submitRaw(Long.parseLong(raw[0]), Long.parseLong(raw[1]), Integer.parseInt(raw[2]), Short.parseShort(raw[3]), raw[4], raw[5], raw[6]);
             }
         }
 
@@ -52,7 +52,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
     }
 
     //function to submit each row from local db and deleting that row after submission from local db
-    public void submitRaw(long start_time, long end_time, int duration, short type, int location_img_id, String location_txt, int activity_img_id, String activity_txt, String distraction) {
+    public void submitRaw(long start_time, long end_time, int duration, short type, String location_txt, String activity_txt, String distraction) {
         Tools.executeForAutoDataSubmit(new MyRunnable(
                 (Activity) context,
                 context.getString(R.string.url_server, context.getString(R.string.server_ip)),
@@ -61,9 +61,7 @@ public class ConnectionReceiver extends BroadcastReceiver {
                 end_time,
                 duration,
                 type,
-                location_img_id,
                 location_txt,
-                activity_img_id,
                 activity_txt,
                 distraction
         ) {
@@ -75,16 +73,14 @@ public class ConnectionReceiver extends BroadcastReceiver {
                 long end_time = (long) args[3];
                 int duration = (int) args[4];
                 short type = (short) args[5];
-                int location_img_id = (int) args[6];
-                String location_txt = (String) args[7];
-                int activity_img_id = (int) args[8];
-                String activity_txt = (String) args[9];
-                String distraction = (String) args[10];
+                String location_txt = (String) args[6];
+                String activity_txt = (String) args[7];
+                String distraction = (String) args[8];
 
                 PHPRequest request;
                 try {
                     request = new PHPRequest(url);
-                    String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, String.valueOf(location_img_id), activity_txt, String.valueOf(activity_img_id), String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(distraction));
+                    String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, "", activity_txt, "", String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(distraction)); //TODO: remove empty strings for icons
                     if (result != null) {
                         switch (result) {
                             case Tools.RES_OK:

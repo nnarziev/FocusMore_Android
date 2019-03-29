@@ -3,7 +3,6 @@ package kr.ac.kaist.lockscreen;
 //화면이 켜졌을 때 ACTION_SCREEN_OFF intent 를 받는다.
 
 import android.app.Activity;
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -26,7 +25,7 @@ public class ScreenReceiver extends BroadcastReceiver {
     protected SharedPreferences sharedPref = null;
     protected SharedPreferences.Editor sharedPrefEditor = null;
     private Context context;
-    private static final int screen_appear_threshold = 30;
+    private static final int screen_appear_threshold = 2;
 
     @Override
     public void onReceive(Context con, Intent intent) {
@@ -107,7 +106,7 @@ public class ScreenReceiver extends BroadcastReceiver {
                 calEnd.setTimeInMillis(end_time);
 
                 db = new DatabaseHelper(context); //reinit DB
-                submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) duration, (short) 1, (int) 0, "", 0, "", "");
+                submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) duration, (short) 1, "", "", "");
             }
 
 
@@ -119,7 +118,7 @@ public class ScreenReceiver extends BroadcastReceiver {
         }
     }
 
-    public void submitRawData(long start_time, long end_time, int duration, short type, int location_img_id, String location_txt, int activity_img_id, String activity_txt, String otherESMResponse) {
+    public void submitRawData(long start_time, long end_time, int duration, short type, String location_txt, String activity_txt, String otherESMResponse) {
         if (Tools.isNetworkAvailable(context)) {
             Tools.executeForService(new MyServiceRunnable(
                     context.getString(R.string.url_server, context.getString(R.string.server_ip)),
@@ -128,9 +127,7 @@ public class ScreenReceiver extends BroadcastReceiver {
                     end_time,
                     duration,
                     type,
-                    location_img_id,
                     location_txt,
-                    activity_img_id,
                     activity_txt,
                     otherESMResponse
 
@@ -143,18 +140,16 @@ public class ScreenReceiver extends BroadcastReceiver {
                     long end_time = (long) args[3];
                     int duration = (int) args[4];
                     short type = (short) args[5];
-                    int location_img_id = (int) args[6];
-                    String location_txt = (String) args[7];
-                    int activity_img_id = (int) args[8];
-                    String activity_txt = (String) args[9];
-                    String otherESMResp = (String) args[10];
+                    String location_txt = (String) args[6];
+                    String activity_txt = (String) args[7];
+                    String otherESMResp = (String) args[8];
 
                     PHPRequest request;
                     try {
                         request = new PHPRequest(url);
-                        String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, String.valueOf(location_img_id), activity_txt, String.valueOf(activity_img_id), String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(otherESMResp));
+                        String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, "", activity_txt, "", String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(otherESMResp)); //TODO: remove empty strings for icons
                         if (result == null) {
-                            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_img_id, location_txt, activity_img_id, activity_txt, otherESMResp);
+                            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_txt, activity_txt, otherESMResp);
 
                             if (isInserted) {
                                 Log.d(TAG, "State saved to local");
@@ -191,7 +186,7 @@ public class ScreenReceiver extends BroadcastReceiver {
                 }
             });
         } else {
-            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_img_id, location_txt, activity_img_id, activity_txt, otherESMResponse);
+            boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_txt, activity_txt, otherESMResponse);
 
             if (isInserted) {
                 Toast.makeText(context, "State saved", Toast.LENGTH_SHORT).show();

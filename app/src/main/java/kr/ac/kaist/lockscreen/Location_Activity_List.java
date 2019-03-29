@@ -14,8 +14,6 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -78,7 +76,7 @@ public class Location_Activity_List extends AppCompatActivity {
         }
 
         while (user_data_res.moveToNext()) {
-            dataModels.add(new ListDataModel(user_data_res.getLong(0), user_data_res.getShort(3) != 0, user_data_res.getString(1), user_data_res.getInt(2)));
+            dataModels.add(new ListDataModel(user_data_res.getLong(0), user_data_res.getShort(2) != 0, user_data_res.getString(1)));
             userDataTexts.add(user_data_res.getString(1));
         }
         //endregion
@@ -131,8 +129,6 @@ public class Location_Activity_List extends AppCompatActivity {
                     View mView = getLayoutInflater().inflate(R.layout.dialog_add_item, parent, false);
 
                     final EditText title = mView.findViewById(R.id.title);
-                    final ImageView icon = mView.findViewById(R.id.ic_chosen);
-                    GridView gvIcons = mView.findViewById(R.id.gv_icons);
                     Button btnCancel = mView.findViewById(R.id.btn_cancel);
                     Button btnUpdate = mView.findViewById(R.id.btn_save);
                     btnUpdate.setText(R.string.update);
@@ -153,21 +149,9 @@ public class Location_Activity_List extends AppCompatActivity {
                         if (user_data_res.getLong(0) == dataModels.get(position).getItemId()) {
                             //put user data to fields before editting
                             title.setText(user_data_res.getString(1));
-                            icon.setImageResource(user_data_res.getInt(2));
-                            icon.setTag(user_data_res.getInt(2));
                             break;
                         }
                     }
-
-                    gvIcons.setAdapter(new Adapters.ImagesGridAdapter(Location_Activity_List.this));
-                    gvIcons.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                            ImageView imageView = (ImageView) view;
-                            icon.setImageResource((int) imageView.getTag());
-                            icon.setTag(imageView.getTag());
-                        }
-                    });
 
                     mBuilder.setView(mView);
                     final AlertDialog dialog = mBuilder.create();
@@ -176,19 +160,19 @@ public class Location_Activity_List extends AppCompatActivity {
                     btnUpdate.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            if (title != null && icon != null && !title.getText().toString().isEmpty() && icon.getTag() != null) {
+                            if (title != null && !title.getText().toString().isEmpty()) {
                                 boolean isUpdated = false;
                                 if (itemFor == LOCATIONS)
-                                    isUpdated = db.updateUserDataTextIcon(LOCATIONS, dataModels.get(position).getItemId(), title.getText().toString(), (int) icon.getTag());
+                                    isUpdated = db.updateUserDataText(LOCATIONS, dataModels.get(position).getItemId(), title.getText().toString());
                                 else if (itemFor == ACTIVITIES)
-                                    isUpdated = db.updateUserDataTextIcon(ACTIVITIES, dataModels.get(position).getItemId(), title.getText().toString(), (int) icon.getTag());
+                                    isUpdated = db.updateUserDataText(ACTIVITIES, dataModels.get(position).getItemId(), title.getText().toString());
 
                                 if (isUpdated)
                                     Toast.makeText(Location_Activity_List.this, "Saved", Toast.LENGTH_SHORT).show();
                                 else
                                     Toast.makeText(Location_Activity_List.this, "Failed", Toast.LENGTH_SHORT).show();
                             } else {
-                                Toast.makeText(Location_Activity_List.this, "Add title/icon", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(Location_Activity_List.this, "Please type a title", Toast.LENGTH_SHORT).show();
                             }
 
                             dialog.dismiss();
@@ -252,8 +236,6 @@ public class Location_Activity_List extends AppCompatActivity {
         View mView = getLayoutInflater().inflate(R.layout.dialog_add_item, nullParent);
 
         final EditText title = mView.findViewById(R.id.title);
-        final ImageView icon = mView.findViewById(R.id.ic_chosen);
-        GridView gvIcons = mView.findViewById(R.id.gv_icons);
         Button btnCancel = mView.findViewById(R.id.btn_cancel);
         Button btnSave = mView.findViewById(R.id.btn_save);
         if (itemFor == LOCATIONS)
@@ -264,16 +246,6 @@ public class Location_Activity_List extends AppCompatActivity {
 
         btnSave.setText(R.string.save);
 
-        gvIcons.setAdapter(new Adapters.ImagesGridAdapter(Location_Activity_List.this));
-        gvIcons.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                ImageView imageView = (ImageView) view;
-                icon.setImageResource((int) imageView.getTag());
-                icon.setTag(imageView.getTag());
-            }
-        });
-
         mBuilder.setView(mView);
         final AlertDialog dialog = mBuilder.create();
         dialog.show();
@@ -281,7 +253,7 @@ public class Location_Activity_List extends AppCompatActivity {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (icon != null && !title.getText().toString().isEmpty() && icon.getTag() != null) {
+                if (!title.getText().toString().isEmpty()) {
                     long itemId = System.currentTimeMillis();
                     boolean isInserted = false;
 
@@ -291,16 +263,16 @@ public class Location_Activity_List extends AppCompatActivity {
                     }
 
                     if (itemFor == LOCATIONS)
-                        isInserted = db.insertNewUserData(LOCATIONS, itemId, title.getText().toString(), (int) icon.getTag(), (short) 1, 0);
+                        isInserted = db.insertNewUserData(LOCATIONS, itemId, title.getText().toString(), (short) 1, 0);
                     else if (itemFor == ACTIVITIES)
-                        isInserted = db.insertNewUserData(ACTIVITIES, itemId, title.getText().toString(), (int) icon.getTag(), (short) 1, 0);
+                        isInserted = db.insertNewUserData(ACTIVITIES, itemId, title.getText().toString(), (short) 1, 0);
 
                     if (isInserted)
                         Toast.makeText(Location_Activity_List.this, "Saved", Toast.LENGTH_SHORT).show();
                     else
                         Toast.makeText(Location_Activity_List.this, "Failed", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(Location_Activity_List.this, "Please, add title/icon", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Location_Activity_List.this, "Please, type a title", Toast.LENGTH_SHORT).show();
                     return;
                 }
 

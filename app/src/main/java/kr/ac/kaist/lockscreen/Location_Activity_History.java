@@ -128,12 +128,10 @@ public class Location_Activity_History extends Activity {
             if (countMap.containsKey(txtElement)) {
                 countMap.get(txtElement).setTextActivity(txtElement);
                 countMap.get(txtElement).setDuration(countMap.get(txtElement).getDuration() + item.getDuration());
-                countMap.get(txtElement).setIconActivity(item.getIconActivity());
                 countMap.put(txtElement, countMap.get(txtElement));
             } else {
                 newData.setTextActivity(txtElement);
                 newData.setDuration(item.getDuration());
-                newData.setIconActivity(item.getIconActivity());
                 countMap.put(txtElement, newData);
             }
         }
@@ -191,12 +189,10 @@ public class Location_Activity_History extends Activity {
                                 long start_time = Long.parseLong(obj.getString("start_time"));
                                 long end_time = Long.parseLong(obj.getString("end_time"));
                                 int duration = Integer.parseInt(obj.getString("elapsed_time"));
-                                int icon_act = Integer.parseInt(obj.getString("activity_id"));
                                 String txt_act = obj.getString("activity");
-                                int icon_loc = Integer.parseInt(obj.getString("location_id"));
                                 String txt_loc = obj.getString("location");
 
-                                globalDataModels.add(new HistoryListDataModel(start_time, end_time, duration, icon_act, txt_act, icon_loc, txt_loc));
+                                globalDataModels.add(new HistoryListDataModel(start_time, end_time, duration, txt_act, txt_loc));
                             }
                         }
                     } catch (MalformedURLException | JSONException e) {

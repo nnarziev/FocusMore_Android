@@ -6,9 +6,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,7 +46,7 @@ public class SignUpActivity extends Activity {
                 String email = (String) args[1];
                 String password = (String) args[2];
 
-                PHPRequest request = null;
+                PHPRequest request;
                 try {
                     request = new PHPRequest(url);
                     String result = request.PhPtest(PHPRequest.SERV_CODE_SIGN_UP, email, password, null, null, null, null, null, null, null, null);
@@ -123,19 +120,16 @@ public class SignUpActivity extends Activity {
     public boolean isEmailValid(String email)
     {
         String regExpn =
-                "^(([\\w-]+\\.)+[\\w-]+|([a-zA-Z]{1}|[\\w-]{2,}))@"
+                "^(([\\w-]+\\.)+[\\w-]+|([a-zA-Z]|[\\w-]{2,}))@"
                         +"((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
                         +"[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\."
                         +"([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\\.([0-1]?"
-                        +"[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|"
+                        +"[0-9]{1,2}|25[0-5]|2[0-4][0-9]))|"
                         +"([a-zA-Z]+[\\w-]+\\.)+[a-zA-Z]{2,4})$";
 
         Pattern pattern = Pattern.compile(regExpn,Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(email);
 
-        if(matcher.matches())
-            return true;
-        else
-            return false;
+        return matcher.matches();
     }
 }

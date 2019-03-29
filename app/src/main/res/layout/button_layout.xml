@@ -5,21 +5,14 @@
     android:orientation="vertical"
     android:background="@drawable/bg_radio_btn">
 
-    <ImageView
-        android:id="@+id/grid_item_img"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:src="@drawable/icon_location_home"
-        android:contentDescription="@string/app_name" />
-
     <TextView
         android:id="@+id/grid_item_txt"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
+        android:gravity="center"
         android:text="@string/dummy"
         android:ellipsize="end"
-        android:maxLines="1"
+        android:maxLines="2"
         android:textSize="12sp"
         android:textColor="@android:color/black"
         android:layout_gravity="center"/>

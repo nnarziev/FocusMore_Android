@@ -3,7 +3,6 @@ package kr.ac.kaist.lockscreen;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
-import android.app.Service;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -160,6 +159,7 @@ abstract class MyServiceRunnable implements Runnable {
     MyServiceRunnable(Object... args) {
         this.args = Arrays.copyOf(args, args.length);
     }
+
     Object[] args;
 }
 
@@ -241,20 +241,17 @@ class DatabaseHelper extends SQLiteOpenHelper {
     private static final String USER_DATA_ACTIVITIES_TABLE = "ud_activities";
     private static final String UD_COL_1 = "ID";
     private static final String UD_COL_2 = "TEXT";
-    private static final String UD_COL_3 = "IMG_ID";
-    private static final String UD_COL_4 = "BOOKMARK";
-    private static final String UD_COL_5 = "ACCUMULATED_DURATION";
+    private static final String UD_COL_3 = "BOOKMARK";
+    private static final String UD_COL_4 = "ACCUMULATED_DURATION";
 
     private static final String RAW_DATA_TABLE = "raw_data";
     private static final String RD_COL_1 = "START_TIME";
     private static final String RD_COL_2 = "END_TIME";
     private static final String RD_COL_3 = "DURATION"; //in minutes
     private static final String RD_COL_4 = "TYPE"; // 1~3
-    private static final String RD_COL_5 = "LOCATION_IMG";
-    private static final String RD_COL_6 = "LOCATION_TXT";
-    private static final String RD_COL_7 = "ACTIVITY_IMG";
-    private static final String RD_COL_8 = "ACTIVITY_TXT";
-    private static final String RD_COL_9 = "DISTRACTION";
+    private static final String RD_COL_5 = "LOCATION_TXT";
+    private static final String RD_COL_6 = "ACTIVITY_TXT";
+    private static final String RD_COL_7 = "DISTRACTION";
 
     static final short LOCATIONS = 1;
     static final short ACTIVITIES = 2;
@@ -269,24 +266,18 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table " + USER_DATA_LOCATIONS_TABLE + "(" + UD_COL_1 + " INTEGER PRIMARY KEY, " + UD_COL_2 + " TEXT, " + UD_COL_3 + " INTEGER, " + UD_COL_4 + " INTEGER, " + UD_COL_5 + " INTEGER " + ")");
-        db.execSQL("create table " + USER_DATA_ACTIVITIES_TABLE + "(" + UD_COL_1 + " INTEGER PRIMARY KEY, " + UD_COL_2 + " TEXT, " + UD_COL_3 + " INTEGER, " + UD_COL_4 + " INTEGER, " + UD_COL_5 + " INTEGER " + ")");
-        db.execSQL("create table " + RAW_DATA_TABLE + "(" + RD_COL_1 + " INTEGER PRIMARY KEY, " + RD_COL_2 + " INTEGER, " + RD_COL_3 + " INTEGER, " + RD_COL_4 + " INTEGER, " + RD_COL_5 + " INTEGER, " + RD_COL_6 + " TEXT, " + RD_COL_7 + " INTEGER, " + RD_COL_8 + " TEXT, " + RD_COL_9 + " TEXT " + ")");
+        db.execSQL("create table " + USER_DATA_LOCATIONS_TABLE + "(" + UD_COL_1 + " INTEGER PRIMARY KEY, " + UD_COL_2 + " TEXT, " + UD_COL_3 + " INTEGER, " + UD_COL_4 + " INTEGER " + ")");
+        db.execSQL("create table " + USER_DATA_ACTIVITIES_TABLE + "(" + UD_COL_1 + " INTEGER PRIMARY KEY, " + UD_COL_2 + " TEXT, " + UD_COL_3 + " INTEGER, " + UD_COL_4 + " INTEGER " + ")");
+        db.execSQL("create table " + RAW_DATA_TABLE + "(" + RD_COL_1 + " INTEGER PRIMARY KEY, " + RD_COL_2 + " INTEGER, " + RD_COL_3 + " INTEGER, " + RD_COL_4 + " INTEGER, " + RD_COL_5 + " TEXT, " + RD_COL_6 + " TEXT, " + RD_COL_7 + " TEXT " + ")");
 
         //region Initialize default values in user data DB
         ArrayList<String> locationsTitleDef = new ArrayList<>(Arrays.asList("Home", "School", "Office", "Library", "Cafe", "Restaurant"));
-        ArrayList<Integer> locationsIconsDef = new ArrayList<>(Arrays.asList(R.drawable.icon_location_home
-                , R.drawable.icon_location_school
-                , R.drawable.icon_location_office
-                , R.drawable.icon_location_library
-                , R.drawable.icon_location_cafe
-                , R.drawable.icon_location_restaurant));
 
         for (int i = 0; i < locationsTitleDef.size(); i++) {
             long itemId = System.currentTimeMillis();
             Log.d(TAG, "TIME: " + itemId);
             boolean isInserted = false;
-            isInserted = insertDefaultUserData(db, LOCATIONS, itemId, locationsTitleDef.get(i), locationsIconsDef.get(i), (short) 1, 0);
+            isInserted = insertDefaultUserData(db, LOCATIONS, itemId, locationsTitleDef.get(i), (short) 1, 0);
             if (!isInserted) {
                 Log.d(TAG, "Failed to insert default location");
                 break;
@@ -300,18 +291,11 @@ class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         ArrayList<String> activitiesTitleDef = new ArrayList<>(Arrays.asList("Study", "Eat", "Work", "Rest", "Sleep", "Workout", "Communicate"));
-        ArrayList<Integer> activitiesIconsDef = new ArrayList<>(Arrays.asList(R.drawable.icon_activity_study
-                , R.drawable.icon_activity_eat
-                , R.drawable.icon_activity_work
-                , R.drawable.icon_activity_rest
-                , R.drawable.icon_activity_sleep
-                , R.drawable.icon_activity_workout
-                , R.drawable.icon_activity_communicate));
 
         for (int i = 0; i < activitiesTitleDef.size(); i++) {
             long itemId = System.currentTimeMillis();
             boolean isInserted = false;
-            isInserted = insertDefaultUserData(db, ACTIVITIES, itemId, activitiesTitleDef.get(i), activitiesIconsDef.get(i), (short) 1, 0);
+            isInserted = insertDefaultUserData(db, ACTIVITIES, itemId, activitiesTitleDef.get(i), (short) 1, 0);
             if (!isInserted) {
                 Log.d(TAG, "Failed to insert default activity");
                 break;
@@ -336,13 +320,12 @@ class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     //region UserData db manipulation
-    private boolean insertDefaultUserData(SQLiteDatabase db, short insertFor, long id, String text, int img_id, short bookmark, int acc_duration) {
+    private boolean insertDefaultUserData(SQLiteDatabase db, short insertFor, long id, String text, short bookmark, int acc_duration) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(UD_COL_1, id);
         contentValues.put(UD_COL_2, text);
-        contentValues.put(UD_COL_3, img_id);
-        contentValues.put(UD_COL_4, bookmark);
-        contentValues.put(UD_COL_5, acc_duration);
+        contentValues.put(UD_COL_3, bookmark);
+        contentValues.put(UD_COL_4, acc_duration);
         long res = 0;
         if (insertFor == LOCATIONS)
             res = db.insert(USER_DATA_LOCATIONS_TABLE, null, contentValues);
@@ -355,14 +338,13 @@ class DatabaseHelper extends SQLiteOpenHelper {
             return true;
     }
 
-    boolean insertNewUserData(short insertFor, long id, String text, int img_id, short bookmark, int acc_duration) {
+    boolean insertNewUserData(short insertFor, long id, String text, short bookmark, int acc_duration) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(UD_COL_1, id);
         contentValues.put(UD_COL_2, text);
-        contentValues.put(UD_COL_3, img_id);
-        contentValues.put(UD_COL_4, bookmark);
-        contentValues.put(UD_COL_5, acc_duration);
+        contentValues.put(UD_COL_3, bookmark);
+        contentValues.put(UD_COL_4, acc_duration);
         long res = 0;
         if (insertFor == LOCATIONS)
             res = db.insert(USER_DATA_LOCATIONS_TABLE, null, contentValues);
@@ -379,9 +361,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor res = null;
         if (getFor == LOCATIONS)
-            res = db.rawQuery("select * from " + USER_DATA_LOCATIONS_TABLE + " order by " + UD_COL_5 + " desc;", null);
+            res = db.rawQuery("select * from " + USER_DATA_LOCATIONS_TABLE + " order by " + UD_COL_4 + " desc;", null);
         else if (getFor == ACTIVITIES)
-            res = db.rawQuery("select * from " + USER_DATA_ACTIVITIES_TABLE + " order by " + UD_COL_5 + " desc;", null);
+            res = db.rawQuery("select * from " + USER_DATA_ACTIVITIES_TABLE + " order by " + UD_COL_4 + " desc;", null);
         return res;
     }
 
@@ -391,12 +373,11 @@ class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("delete from " + USER_DATA_LOCATIONS_TABLE);
     }
 
-    boolean updateUserDataTextIcon(short updateFor, long id, String text, int img_id) {
+    boolean updateUserDataText(short updateFor, long id, String text) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(UD_COL_1, id);
         contentValues.put(UD_COL_2, text);
-        contentValues.put(UD_COL_3, img_id);
         if (updateFor == LOCATIONS)
             db.update(USER_DATA_LOCATIONS_TABLE, contentValues, "ID = ?", new String[]{String.valueOf(id)});
         else if (updateFor == ACTIVITIES)
@@ -409,7 +390,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(UD_COL_1, id);
-        contentValues.put(UD_COL_4, bookmark);
+        contentValues.put(UD_COL_3, bookmark);
         if (updateFor == LOCATIONS)
             db.update(USER_DATA_LOCATIONS_TABLE, contentValues, "ID = ?", new String[]{String.valueOf(id)});
         else if (updateFor == ACTIVITIES)
@@ -421,7 +402,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
     boolean updateUserDataAccDuration(short updateFor, String title, int duration) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(UD_COL_5, duration);
+        contentValues.put(UD_COL_4, duration);
         if (updateFor == LOCATIONS)
             db.update(USER_DATA_LOCATIONS_TABLE, contentValues, "TEXT = ?", new String[]{title});
         else if (updateFor == ACTIVITIES)
@@ -443,18 +424,16 @@ class DatabaseHelper extends SQLiteOpenHelper {
     //endregion
 
     //region RawData db manipulation
-    boolean insertRawData(long start_time, long end_time, int duration, short type, int location_img_id, String location_txt, int activity_img_id, String activity_txt, String distraction) {
+    boolean insertRawData(long start_time, long end_time, int duration, short type, String location_txt, String activity_txt, String distraction) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(RD_COL_1, start_time);
         contentValues.put(RD_COL_2, end_time);
         contentValues.put(RD_COL_3, duration);
         contentValues.put(RD_COL_4, type);
-        contentValues.put(RD_COL_5, location_img_id);
-        contentValues.put(RD_COL_6, location_txt);
-        contentValues.put(RD_COL_7, activity_img_id);
-        contentValues.put(RD_COL_8, activity_txt);
-        contentValues.put(RD_COL_9, distraction);
+        contentValues.put(RD_COL_5, location_txt);
+        contentValues.put(RD_COL_6, activity_txt);
+        contentValues.put(RD_COL_7, distraction);
 
         long res = 0;
         res = db.insert(RAW_DATA_TABLE, null, contentValues);
@@ -485,11 +464,9 @@ class DatabaseHelper extends SQLiteOpenHelper {
                 data.append("End: " + res.getString(1) + "\n");
                 data.append("Duration(sec): " + res.getString(2) + "\n");
                 data.append("Type: " + res.getString(3) + "\n");
-                data.append("Location_img: " + res.getString(4) + "\n");
-                data.append("Location_txt: " + res.getString(5) + "\n");
-                data.append("Activity_img: " + res.getString(6) + "\n");
-                data.append("Activity_txt: " + res.getString(7) + "\n");
-                data.append("Distract: " + res.getString(8) + "\n");
+                data.append("Location_txt: " + res.getString(4) + "\n");
+                data.append("Activity_txt: " + res.getString(5) + "\n");
+                data.append("Distract: " + res.getString(6) + "\n");
                 dataResultList.add(data.toString());
                 //Log.i("result!!",data.toString());
             } while (res.moveToNext());
@@ -513,8 +490,6 @@ class DatabaseHelper extends SQLiteOpenHelper {
                 data[4] = res.getString(4);
                 data[5] = res.getString(5);
                 data[6] = res.getString(6);
-                data[7] = res.getString(7);
-                data[8] = res.getString(8);
                 dataResultList.add(data);
             } while (res.moveToNext());
         }
@@ -538,13 +513,11 @@ class ListDataModel {
     private long itemId;
     private boolean bookmark;
     private String text;
-    private int iconResource;
 
-    ListDataModel(long itemId, boolean bookmark, String text, int iconResource) {
+    ListDataModel(long itemId, boolean bookmark, String text) {
         this.itemId = itemId;
         this.bookmark = bookmark;
         this.text = text;
-        this.iconResource = iconResource;
 
     }
 
@@ -559,32 +532,24 @@ class ListDataModel {
     public String getText() {
         return text;
     }
-
-    int getIconResource() {
-        return iconResource;
-    }
 }
 
 class HistoryListDataModel {
     private long startTime;
     private long endTimne;
     private int duration;
-    private int iconActivity;
     private String textActivity;
-    private int iconLocation;
     private String textLocation;
 
     HistoryListDataModel() {
 
     }
 
-    HistoryListDataModel(long startTimne, long endTimne, int duration, int iconActivity, String textActivity, int iconLocation, String textLocation) {
+    HistoryListDataModel(long startTimne, long endTimne, int duration, String textActivity, String textLocation) {
         this.startTime = startTimne;
         this.endTimne = endTimne;
         this.duration = duration;
-        this.iconActivity = iconActivity;
         this.textActivity = textActivity;
-        this.iconLocation = iconLocation;
         this.textLocation = textLocation;
     }
 
@@ -604,14 +569,6 @@ class HistoryListDataModel {
         this.duration = dur;
     }
 
-    int getIconActivity() {
-        return iconActivity;
-    }
-
-    void setIconActivity(int iconID) {
-        this.iconActivity = iconID;
-    }
-
     String getTextActivity() {
         return textActivity;
     }
@@ -620,14 +577,9 @@ class HistoryListDataModel {
         this.textActivity = txt;
     }
 
-    int getIconLocation() {
-        return iconLocation;
-    }
-
     String getTextLocation() {
         return textLocation;
     }
-
 
 }
 
