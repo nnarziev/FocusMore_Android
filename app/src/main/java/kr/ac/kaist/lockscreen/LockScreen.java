@@ -45,6 +45,7 @@ public class LockScreen extends AppCompatActivity {
     public static final String TAG = "LockScreen";
 
     //region UI variables
+    private TextView txtSurveyMetrics;
     private TextView txtCurrentTime;
     private TextView txtTimer;
     private RadioGroup rgLocations;
@@ -159,6 +160,7 @@ public class LockScreen extends AppCompatActivity {
     void initUIVars() {
 
         //region Initialize UI variables
+        txtSurveyMetrics = findViewById(R.id.txt_survey_metrics);
         txtCurrentTime = findViewById(R.id.current_time);
         txtTimer = findViewById(R.id.timer);
         seekBarQ1 = findViewById(R.id.question_1);  //init SeekBar for answer from question 1
@@ -408,13 +410,14 @@ public class LockScreen extends AppCompatActivity {
             final Intent intentHome = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
             intentHome.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
             intentHome.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
+            finish();
             startActivity(intentHome); // Start the home activity
         }
 
 
     }
 
-    public void cancelClicked(View view) {
+    public void laterClicked(View view) {
         action = Action.ACTION_BUTTON_CLIKC;
         ;
         //State Type 2 -> cancel
@@ -463,7 +466,7 @@ public class LockScreen extends AppCompatActivity {
         RadioButton chosenLocationRB = findViewById(rgLocations.getCheckedRadioButtonId());
         RadioButton chosenActivityRB = findViewById(rgActivity.getCheckedRadioButtonId());
 
-        if (chosenActivityRB == null || chosenLocationRB == null || chosenActivityRB.getTag() == null || chosenLocationRB.getTag() == null) {
+        if (chosenActivityRB == null || chosenLocationRB == null) {
             Toast.makeText(getApplicationContext(), "Please, choose location, activity and disturbance", Toast.LENGTH_LONG).show();
             return;
         }
@@ -646,7 +649,6 @@ public class LockScreen extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        Log.e(TAG, "onResume: called");
         action = Action.ACTION_HOME_CLIKC;
         initLocations();
         initActivities();
@@ -723,7 +725,6 @@ public class LockScreen extends AppCompatActivity {
                 switch (action) {
                     case ACTION_HOME_CLIKC:
                         Log.d(TAG, "Pressed home button!");
-
                         //State Type 2 -> cancel
                         calStart = Calendar.getInstance();
                         calEnd = Calendar.getInstance();
@@ -759,7 +760,7 @@ public class LockScreen extends AppCompatActivity {
                             calEnd.setTimeInMillis(end_time);
 
                             db = new DatabaseHelper(LockScreen.this); //reinit DB
-                            submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) (duration / 1000), (short) 1, "", "", "");
+                            submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) (duration / 1000), (short) 1, "", "", "");  //submit raw data when notification is clicked
                         } else
                             Log.d(TAG, "FROM ELSE");
                         break;

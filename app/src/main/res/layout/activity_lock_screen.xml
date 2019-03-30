@@ -10,6 +10,16 @@
     tools:context=".LockScreen">
 
     <TextView
+        android:id="@+id/txt_survey_metrics"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="2"
+        android:gravity="center"
+        android:textSize="@dimen/question_txt_size"
+        android:textColor="@android:color/black"
+        android:text="@string/dummy"/>
+
+    <TextView
         android:id="@+id/current_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -34,7 +44,7 @@
         android:layout_width="230dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="동안 현재 자리에서 스마트폰을 사용하지 않았습니다"
+        android:text="@string/after_timer_text"
         android:textColor="@android:color/black"
         android:textSize="@dimen/question_txt_size" />
 
@@ -517,15 +527,15 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
         <Button
-            android:id="@+id/btn_cancel"
+            android:id="@+id/btn_later"
             style="@style/Base.Widget.AppCompat.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_weight="1"
             android:background="@color/btn_checked_color"
-            android:onClick="cancelClicked"
-            android:text="@string/cancel"
+            android:onClick="laterClicked"
+            android:text="@string/later"
             android:textColor="@android:color/black"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

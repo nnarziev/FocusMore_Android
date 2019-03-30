@@ -74,6 +74,8 @@
     <string name="service_restart">Service restart</string>
     <string name="srv_is_running">Service is running :)</string>
     <string name="srv_is_not_running">Service is not running :(</string>
+    <string name="after_timer_text">동안 현재 자리에서 스마트폰을 사용하지 않았습니다</string>
+    <string name="later">나중에</string>
 
 
 </resources>
