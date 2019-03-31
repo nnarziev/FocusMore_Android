@@ -25,7 +25,7 @@ public class ScreenReceiver extends BroadcastReceiver {
     protected SharedPreferences sharedPref = null;
     protected SharedPreferences.Editor sharedPrefEditor = null;
     private Context context;
-    private static final int screen_appear_threshold = 2;
+    private static final int screen_appear_threshold = 1;
 
     @Override
     public void onReceive(Context con, Intent intent) {
@@ -130,7 +130,6 @@ public class ScreenReceiver extends BroadcastReceiver {
                     location_txt,
                     activity_txt,
                     otherESMResponse
-
             ) {
                 @Override
                 public void run() {

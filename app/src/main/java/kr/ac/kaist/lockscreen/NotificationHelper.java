@@ -1,6 +1,7 @@
 package kr.ac.kaist.lockscreen;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -8,13 +9,19 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
+import android.widget.Toast;
+
+import java.util.Calendar;
 
 public class NotificationHelper extends ContextWrapper {
     public static final String CHANNEL_2_ID = "later_esm_channel";
     private NotificationManager mManager;
 
+    public static final int notification_pass_time_limit = 5;
 
     public NotificationHelper(Context base) {
         super(base);
@@ -54,5 +61,6 @@ public class NotificationHelper extends ContextWrapper {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setAutoCancel(true)
                 .setContentIntent(resultPendingIntent);
+
     }
 }

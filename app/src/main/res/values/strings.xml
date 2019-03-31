@@ -3,7 +3,7 @@
     <string name="server_ip">143.248.90.57</string> <!-- SR PC IP: 165.246.43.97 -->
     <string name="url_server">http://%1$s/server.php</string>
 
-    <string name="app_name">잠금화면 실험 앱</string>
+    <string name="app_name">FocusMore</string>
     <string name="action_settings">Settings</string>
     <string name="dummy">dummy</string>
     <string name="question_location">현재 장소는 어디 입니까?</string>

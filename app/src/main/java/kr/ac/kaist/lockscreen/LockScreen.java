@@ -140,38 +140,43 @@ public class LockScreen extends AppCompatActivity {
         sharedPrefModesEditor = sharedPrefModes.edit();
 
         sharedPrefLaterState = getSharedPreferences("LaterState", Activity.MODE_PRIVATE);
-        sharedPrefLaterStateEditor = sharedPrefModes.edit();
+        sharedPrefLaterStateEditor = sharedPrefLaterState.edit();
 
         mNotificationHelper = new NotificationHelper(this);
+
+        //Service
+        intentService = new Intent(this, CountService.class);
 
         initUIVars();
         initLocations(); //init all available location
         initActivities(); //init all available activities
 
-        if (getIntent().getBooleanExtra("LaterNotification", false)) {
-            initLaterStateFromNotif();
+        if (!getIntent().getBooleanExtra("LaterNotification", false)) {
+            isFocusing = "-1";
+
+            //Start the service
+            startService(intentService);
+            sharedPrefModesEditor.putInt("Shaked", 0);
+            sharedPrefModesEditor.apply();
+
+            handler = new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    updateThread();
+                }
+
+            };
+        } else {
+            Calendar curTime = Calendar.getInstance();
+            long time_difference = (curTime.getTimeInMillis() / 1000) - (sharedPrefLaterState.getLong("Timestamp", -1) / 1000);
+            if (time_difference > 5) {
+                Toast.makeText(this, "5분이 경과되어 설문에 참여할 수 없습니다. 다음에는 꼭 참여 부탁드립니다!", Toast.LENGTH_LONG).show();
+                finish();
+            } else
+                initLaterStateFromNotif();
         }
 
-        isFocusing = "-1";
 
-        //Service
-        intentService = new Intent(this, CountService.class);
-        startService(intentService);
-
-        sharedPrefModesEditor.putInt("Shaked", 0);
-        sharedPrefModesEditor.apply();
-
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                updateThread();
-            }
-
-        };
-    }
-
-    private void initLaterStateFromNotif(){
-        Toast.makeText(this, "Will init UI", Toast.LENGTH_SHORT).show();
     }
 
     private void initUIVars() {
@@ -180,6 +185,10 @@ public class LockScreen extends AppCompatActivity {
         txtSurveyMetrics = findViewById(R.id.txt_survey_metrics);
         txtCurrentTime = findViewById(R.id.current_time);
         txtTimer = findViewById(R.id.timer);
+        rgLocations = findViewById(R.id.rg_locations);
+        gvLocations = findViewById(R.id.gv_locations);
+        rgActivity = findViewById(R.id.rg_activity);
+        gvActivity = findViewById(R.id.gv_activity);
         seekBarQ1 = findViewById(R.id.question_1);  //init SeekBar for answer from question 1
         seekBarQ2 = findViewById(R.id.question_2);
         seekBarQ3 = findViewById(R.id.question_3);
@@ -189,6 +198,40 @@ public class LockScreen extends AppCompatActivity {
         drawableArrowDown = getResources().getIdentifier("ic_more_down", "drawable", getApplicationContext().getPackageName());
         drawableArrowUp = getResources().getIdentifier("ic_more_up", "drawable", getApplicationContext().getPackageName());
         //endregion
+
+    }
+
+    private void initLaterStateFromNotif() {
+        Toast.makeText(this, "Will init UI", Toast.LENGTH_SHORT).show();
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(sharedPrefLaterState.getLong("Timestamp", -1));
+        String sDate = c.get(Calendar.MONTH) + 1 + "월"
+                + c.get(Calendar.DAY_OF_MONTH) + "일 "
+                + c.get(Calendar.HOUR_OF_DAY) + ":"
+                + String.format(Locale.ENGLISH, "%02d", c.get(Calendar.MINUTE));
+        txtCurrentTime.setText(sDate);
+
+        difference_time = sharedPrefLaterState.getInt("Duration", -1);
+        int hour = 0;
+        int min = 0;
+        int sec = 0;
+        if (difference_time > 0) {
+            if (difference_time < 60) {
+                sec = difference_time;
+                txtTimer.setText(String.format(Locale.ENGLISH, "%d%s", sec, getString(R.string.seconds)));
+            } else if (difference_time < 3600) {
+                min = difference_time / 60;
+                sec = difference_time % 60;
+                txtTimer.setText(String.format(Locale.ENGLISH, "%d%s %d%s", min, getString(R.string.min), sec, getString(R.string.seconds)));
+            } else {
+                hour = difference_time / 3600;
+                min = (difference_time % 3600) / 60;
+                sec = difference_time % 60;
+                txtTimer.setText(String.format(Locale.ENGLISH, "%d%s %d%s %d%s", hour, getString(R.string.hours), min, getString(R.string.min), sec, getString(R.string.seconds)));
+            }
+        } else {
+            txtTimer.setText("잠금 모드 해제!");
+        }
 
     }
 
@@ -249,7 +292,6 @@ public class LockScreen extends AppCompatActivity {
         titlesLocations.add(addTxt);
 
         //init radio group
-        rgLocations = findViewById(R.id.rg_locations);
         int indexOfLocations = 0;
         for (; indexOfLocations < rgLocations.getChildCount() - 1; indexOfLocations++) {
             RadioButton rb = ((RadioButton) rgLocations.getChildAt(indexOfLocations));
@@ -262,7 +304,6 @@ public class LockScreen extends AppCompatActivity {
         final RadioButton moreBtnLocation = findViewById(R.id.location_btn_4);
         imgArrowLocation = findViewById(R.id.arrow_location);
 
-        gvLocations = findViewById(R.id.gv_locations);
         gvLocations.setAdapter(adapterLocations);
         gvLocations.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -342,7 +383,6 @@ public class LockScreen extends AppCompatActivity {
         titlesActivity.add(addTxt);
 
         //init radio group
-        rgActivity = findViewById(R.id.rg_activity);
         int indexOfActivitiy = 0;
         for (; indexOfActivitiy < rgActivity.getChildCount() - 1; indexOfActivitiy++) {
             RadioButton rb = ((RadioButton) rgActivity.getChildAt(indexOfActivitiy));
@@ -355,7 +395,6 @@ public class LockScreen extends AppCompatActivity {
         final RadioButton moreBtnActivity = findViewById(R.id.activity_btn_4);
         imgArrowActivity = findViewById(R.id.arrow_activity);
 
-        gvActivity = findViewById(R.id.gv_activity);
         gvActivity.setAdapter(adapterActivity);
         gvActivity.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -416,13 +455,13 @@ public class LockScreen extends AppCompatActivity {
     public void restartServiceAndFinishActivity() {
 
         //region Restart the service
+        intentService = new Intent(this, CountService.class);
         stopService(intentService);
         startService(intentService);
         sharedPrefModesEditor.putInt("FocusMode", 0);
         sharedPrefModesEditor.apply();
         //endregion
 
-        Log.e(TAG, "restartServiceAndFinishActivity: " + action);
         if (action != Action.ACTION_NOTIFICATION_CLIKC) {
             final Intent intentHome = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
             intentHome.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
@@ -431,49 +470,28 @@ public class LockScreen extends AppCompatActivity {
             startActivity(intentHome); // Start the home activity
         }
 
-
     }
 
     public void laterClicked(View view) {
-        //TODO: handle notification sending in this function
-        //region Saving later state in shared pref
-        Calendar curTime = Calendar.getInstance();
-        RadioButton chosenLocationRB = findViewById(rgLocations.getCheckedRadioButtonId());
-        RadioButton chosenActivityRB = findViewById(rgActivity.getCheckedRadioButtonId());
-        sharedPrefLaterStateEditor.putInt("Duration", difference_time);
-        sharedPrefLaterStateEditor.apply();
-        sharedPrefLaterStateEditor.putLong("Timestamp", curTime.getTimeInMillis());
-        sharedPrefLaterStateEditor.apply();
-        sharedPrefLaterStateEditor.putString("Location", chosenLocationRB.getText().toString());
-        sharedPrefLaterStateEditor.apply();
-        sharedPrefLaterStateEditor.putString("Activity", chosenActivityRB.getText().toString());
-        sharedPrefLaterStateEditor.apply();
-        sharedPrefLaterStateEditor.putInt("OtherQ1", seekBarQ1.getProgress() + 1);
-        sharedPrefLaterStateEditor.apply();
-        sharedPrefLaterStateEditor.putInt("OtherQ2", seekBarQ2.getProgress() + 1);
-        sharedPrefLaterStateEditor.apply();
-        sharedPrefLaterStateEditor.putInt("OtherQ3", seekBarQ3.getProgress() + 1);
-        sharedPrefLaterStateEditor.apply();
-        sharedPrefLaterStateEditor.putString("OtherQ4", editTextQ4.getText().toString());
-        sharedPrefLaterStateEditor.apply();
-        //endregion
-
-        NotificationCompat.Builder nb = mNotificationHelper.getChannel2Notification("Title", "text message");
-        mNotificationHelper.getManager().notify(2, nb.build());
-
-
         action = Action.ACTION_BUTTON_CLIKC;
 
-        //State Type 2 -> cancel
-        Calendar calStart = Calendar.getInstance();
-        Calendar calEnd = Calendar.getInstance();
-        long start_time = sharedPrefModes.getLong("data_start_timestamp", -1);
-        long end_time = System.currentTimeMillis();
-        calStart.setTimeInMillis(start_time);
-        calEnd.setTimeInMillis(end_time);
+        //region Saving later state in shared pref
+        Calendar curTime = Calendar.getInstance();
+        //if touching of "Later" button is pressed second time after notification opening notification don't save the state (Save only when pressed first time)
+        if (!getIntent().getBooleanExtra("LaterNotification", false)) {
+            sharedPrefLaterStateEditor.putInt("Duration", difference_time);
+            sharedPrefLaterStateEditor.apply();
+            sharedPrefLaterStateEditor.putLong("Timestamp", curTime.getTimeInMillis());
+            sharedPrefLaterStateEditor.apply();
+            sharedPrefLaterStateEditor.putInt("Time_Passed", 0);
+            sharedPrefLaterStateEditor.apply();
+        }
+        //endregion
 
-        submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 2, "", "", "");
+        NotificationCompat.Builder nb = mNotificationHelper.getChannel2Notification(getString(R.string.app_name), "설문 화면으로 이동 (5분 안에 설문에 참여해 주세요!)");
+        mNotificationHelper.getManager().notify(2, nb.build());
 
+        finish();
         sharedPrefModesEditor.putInt("Shaked", 0);
         sharedPrefModesEditor.apply();
     }
@@ -505,7 +523,7 @@ public class LockScreen extends AppCompatActivity {
 
     public void saveClicked(View view) {
         action = Action.ACTION_BUTTON_CLIKC;
-        ;
+
         //State Type 3 -> ideal case
         RadioButton chosenLocationRB = findViewById(rgLocations.getCheckedRadioButtonId());
         RadioButton chosenActivityRB = findViewById(rgActivity.getCheckedRadioButtonId());
