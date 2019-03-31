@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -81,6 +82,7 @@ public class LockScreen extends AppCompatActivity {
     private int difference_time;
     private String isFocusing = "-1";
     static Action action;
+    private NotificationHelper mNotificationHelper;
 
     List<String> titlesLocations;
     List<String> titlesActivity;
@@ -89,8 +91,10 @@ public class LockScreen extends AppCompatActivity {
     Map<String, Integer> durationsActivity;
     //endregion
 
-    private SharedPreferences sharedPref = null;
-    private SharedPreferences.Editor sharedPrefEditor = null;
+    private SharedPreferences sharedPrefModes = null;
+    private SharedPreferences.Editor sharedPrefModesEditor = null;
+    private SharedPreferences sharedPrefLaterState = null;
+    private SharedPreferences.Editor sharedPrefLaterStateEditor = null;
     private CountService myService;
     private Intent intentService;
     private Thread myThread = null;
@@ -132,9 +136,21 @@ public class LockScreen extends AppCompatActivity {
         db = new DatabaseHelper(this); // init database
         //db.testDB();
 
+        sharedPrefModes = getSharedPreferences("Modes", Activity.MODE_PRIVATE);
+        sharedPrefModesEditor = sharedPrefModes.edit();
+
+        sharedPrefLaterState = getSharedPreferences("LaterState", Activity.MODE_PRIVATE);
+        sharedPrefLaterStateEditor = sharedPrefModes.edit();
+
+        mNotificationHelper = new NotificationHelper(this);
+
         initUIVars();
         initLocations(); //init all available location
         initActivities(); //init all available activities
+
+        if (getIntent().getBooleanExtra("LaterNotification", false)) {
+            initLaterStateFromNotif();
+        }
 
         isFocusing = "-1";
 
@@ -142,11 +158,8 @@ public class LockScreen extends AppCompatActivity {
         intentService = new Intent(this, CountService.class);
         startService(intentService);
 
-        sharedPref = getSharedPreferences("Modes", Activity.MODE_PRIVATE);
-        sharedPrefEditor = sharedPref.edit();
-
-        sharedPrefEditor.putInt("Shaked", 0);
-        sharedPrefEditor.apply();
+        sharedPrefModesEditor.putInt("Shaked", 0);
+        sharedPrefModesEditor.apply();
 
         handler = new Handler() {
             @Override
@@ -157,7 +170,11 @@ public class LockScreen extends AppCompatActivity {
         };
     }
 
-    void initUIVars() {
+    private void initLaterStateFromNotif(){
+        Toast.makeText(this, "Will init UI", Toast.LENGTH_SHORT).show();
+    }
+
+    private void initUIVars() {
 
         //region Initialize UI variables
         txtSurveyMetrics = findViewById(R.id.txt_survey_metrics);
@@ -183,9 +200,9 @@ public class LockScreen extends AppCompatActivity {
                 + String.format(Locale.ENGLISH, "%02d", c.get(Calendar.MINUTE));
         txtCurrentTime.setText(sDate);
 
-        int previous_time = sharedPref.getInt("Count", -1); //becomes 1 when in Focus Mode
+        int previous_time = sharedPrefModes.getInt("Count", -1); //becomes 1 when in Focus Mode
         int current_time = (int) System.currentTimeMillis() / 1000;
-        if (sharedPref.getInt("Shaked", -1) == 0 && sharedPref.getInt("FocusMode", -1) == 1) {
+        if (sharedPrefModes.getInt("Shaked", -1) == 0 && sharedPrefModes.getInt("FocusMode", -1) == 1) {
             difference_time = current_time - previous_time;
             int hour = 0;
             int min = 0;
@@ -401,8 +418,8 @@ public class LockScreen extends AppCompatActivity {
         //region Restart the service
         stopService(intentService);
         startService(intentService);
-        sharedPrefEditor.putInt("FocusMode", 0);
-        sharedPrefEditor.apply();
+        sharedPrefModesEditor.putInt("FocusMode", 0);
+        sharedPrefModesEditor.apply();
         //endregion
 
         Log.e(TAG, "restartServiceAndFinishActivity: " + action);
@@ -418,20 +435,47 @@ public class LockScreen extends AppCompatActivity {
     }
 
     public void laterClicked(View view) {
+        //TODO: handle notification sending in this function
+        //region Saving later state in shared pref
+        Calendar curTime = Calendar.getInstance();
+        RadioButton chosenLocationRB = findViewById(rgLocations.getCheckedRadioButtonId());
+        RadioButton chosenActivityRB = findViewById(rgActivity.getCheckedRadioButtonId());
+        sharedPrefLaterStateEditor.putInt("Duration", difference_time);
+        sharedPrefLaterStateEditor.apply();
+        sharedPrefLaterStateEditor.putLong("Timestamp", curTime.getTimeInMillis());
+        sharedPrefLaterStateEditor.apply();
+        sharedPrefLaterStateEditor.putString("Location", chosenLocationRB.getText().toString());
+        sharedPrefLaterStateEditor.apply();
+        sharedPrefLaterStateEditor.putString("Activity", chosenActivityRB.getText().toString());
+        sharedPrefLaterStateEditor.apply();
+        sharedPrefLaterStateEditor.putInt("OtherQ1", seekBarQ1.getProgress() + 1);
+        sharedPrefLaterStateEditor.apply();
+        sharedPrefLaterStateEditor.putInt("OtherQ2", seekBarQ2.getProgress() + 1);
+        sharedPrefLaterStateEditor.apply();
+        sharedPrefLaterStateEditor.putInt("OtherQ3", seekBarQ3.getProgress() + 1);
+        sharedPrefLaterStateEditor.apply();
+        sharedPrefLaterStateEditor.putString("OtherQ4", editTextQ4.getText().toString());
+        sharedPrefLaterStateEditor.apply();
+        //endregion
+
+        NotificationCompat.Builder nb = mNotificationHelper.getChannel2Notification("Title", "text message");
+        mNotificationHelper.getManager().notify(2, nb.build());
+
+
         action = Action.ACTION_BUTTON_CLIKC;
-        ;
+
         //State Type 2 -> cancel
         Calendar calStart = Calendar.getInstance();
         Calendar calEnd = Calendar.getInstance();
-        long start_time = sharedPref.getLong("data_start_timestamp", -1);
+        long start_time = sharedPrefModes.getLong("data_start_timestamp", -1);
         long end_time = System.currentTimeMillis();
         calStart.setTimeInMillis(start_time);
         calEnd.setTimeInMillis(end_time);
 
         submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 2, "", "", "");
 
-        sharedPrefEditor.putInt("Shaked", 0);
-        sharedPrefEditor.apply();
+        sharedPrefModesEditor.putInt("Shaked", 0);
+        sharedPrefModesEditor.apply();
     }
 
     public void etcClicked(View view) {
@@ -473,7 +517,7 @@ public class LockScreen extends AppCompatActivity {
 
         Calendar calStart = Calendar.getInstance();
         Calendar calEnd = Calendar.getInstance();
-        long start_time = sharedPref.getLong("data_start_timestamp", -1);
+        long start_time = sharedPrefModes.getLong("data_start_timestamp", -1);
         long end_time = System.currentTimeMillis();
         calStart.setTimeInMillis(start_time);
         calEnd.setTimeInMillis(end_time);
@@ -613,8 +657,8 @@ public class LockScreen extends AppCompatActivity {
 
         }
 
-        sharedPrefEditor.putInt("Flag", 0);
-        sharedPrefEditor.apply();
+        sharedPrefModesEditor.putInt("Flag", 0);
+        sharedPrefModesEditor.apply();
 
     }
 
@@ -642,8 +686,8 @@ public class LockScreen extends AppCompatActivity {
             }
         });
         myThread.start();
-        sharedPrefEditor.putInt("OtherApp", 0);
-        sharedPrefEditor.apply();
+        sharedPrefModesEditor.putInt("OtherApp", 0);
+        sharedPrefModesEditor.apply();
     }
 
     @Override
@@ -660,12 +704,12 @@ public class LockScreen extends AppCompatActivity {
         editor_typing.commit();
         */
 
-        sharedPrefEditor.putInt("Shaked", 0);
-        sharedPrefEditor.apply();
+        sharedPrefModesEditor.putInt("Shaked", 0);
+        sharedPrefModesEditor.apply();
         //Log.i("resume", "굿굿");
 
-        sharedPrefEditor.putInt("Flag", 1);
-        sharedPrefEditor.apply();
+        sharedPrefModesEditor.putInt("Flag", 1);
+        sharedPrefModesEditor.apply();
 
 
     }
@@ -674,7 +718,7 @@ public class LockScreen extends AppCompatActivity {
     public void onStop() {
         super.onStop();
         //Log.i("onStop", "onStop");
-        int shaked = sharedPref.getInt("Shaked", -1);
+        int shaked = sharedPrefModes.getInt("Shaked", -1);
 
         //Log.i("shaked?",String.valueOf(shaked));
         if (shaked == 1) {
@@ -682,7 +726,7 @@ public class LockScreen extends AppCompatActivity {
                 //State Type 1 -> movement
                 Calendar calStart = Calendar.getInstance();
                 Calendar calEnd = Calendar.getInstance();
-                long start_time = sharedPref.getLong("data_start_timestamp", -1);
+                long start_time = sharedPrefModes.getLong("data_start_timestamp", -1);
                 long end_time = System.currentTimeMillis();
                 calStart.setTimeInMillis(start_time);
                 calEnd.setTimeInMillis(end_time);
@@ -694,8 +738,8 @@ public class LockScreen extends AppCompatActivity {
             }
         }
 
-        sharedPrefEditor.putInt("Shaked", 0);
-        sharedPrefEditor.apply();
+        sharedPrefModesEditor.putInt("Shaked", 0);
+        sharedPrefModesEditor.apply();
 
         isStop = false;
         myThread.interrupt();
@@ -728,21 +772,21 @@ public class LockScreen extends AppCompatActivity {
                         //State Type 2 -> cancel
                         calStart = Calendar.getInstance();
                         calEnd = Calendar.getInstance();
-                        start_time = sharedPref.getLong("data_start_timestamp", -1);
+                        start_time = sharedPrefModes.getLong("data_start_timestamp", -1);
                         end_time = System.currentTimeMillis();
                         calStart.setTimeInMillis(start_time);
                         calEnd.setTimeInMillis(end_time);
 
                         submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 2, "", "", "");
 
-                        sharedPrefEditor.putInt("Shaked", 0);
-                        sharedPrefEditor.apply();
+                        sharedPrefModesEditor.putInt("Shaked", 0);
+                        sharedPrefModesEditor.apply();
                         break;
                     case ACTION_NOTIFICATION_CLIKC:
-                        int flag = sharedPref.getInt("Flag", -1);
-                        int focus = sharedPref.getInt("FocusMode", -1);
+                        int flag = sharedPrefModes.getInt("Flag", -1);
+                        int focus = sharedPrefModes.getInt("FocusMode", -1);
 
-                        Map<String, ?> allEntries = sharedPref.getAll();
+                        Map<String, ?> allEntries = sharedPrefModes.getAll();
                         for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
                             Log.d(TAG, "MAP vals: " + entry.getKey() + ": " + entry.getValue().toString());
                         }
@@ -753,7 +797,7 @@ public class LockScreen extends AppCompatActivity {
                             //State Type 1 -> notification click
                             calStart = Calendar.getInstance();
                             calEnd = Calendar.getInstance();
-                            start_time = sharedPref.getLong("data_start_timestamp", -1);
+                            start_time = sharedPrefModes.getLong("data_start_timestamp", -1);
                             end_time = System.currentTimeMillis();
                             long duration = end_time - start_time;
                             calStart.setTimeInMillis(start_time);

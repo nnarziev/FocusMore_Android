@@ -2,6 +2,8 @@ package kr.ac.kaist.lockscreen;
 
 import android.app.Activity;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,14 +15,16 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import static kr.ac.kaist.lockscreen.App.CHANNEL_1_ID;
+
 public class CountService extends Service implements SensorEventListener {
 
-    public static final String CHANNEL_ID = "exampleServiceChannel";
     public static final String TAG = "CountService";
 
     private SharedPreferences sharedPref = null;
@@ -37,6 +41,8 @@ public class CountService extends Service implements SensorEventListener {
     private float mAccel; // acceleration apart from gravity
     private float mAccelCurrent; // current acceleration including gravity
     private float mAccelLast; // last acceleration including gravity
+
+    Notification notificationServiceRunning;
 
     private final IBinder mBinder = new LocalBinder();
 
@@ -99,12 +105,11 @@ public class CountService extends Service implements SensorEventListener {
                 SensorManager.SENSOR_DELAY_UI, new Handler());
 
         //노티바 고정 띄우기
-        Notification notiEx = new NotificationCompat.Builder(CountService.this, CHANNEL_ID)
-                .setContentTitle("Lock Screen")
-                .setContentText("Running...")
+        notificationServiceRunning = new NotificationCompat.Builder(CountService.this, CHANNEL_1_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
                 .build();
-        startForeground(1, notiEx);
+        startForeground(1, notificationServiceRunning);
 
         //Screen receiver로부터 Screen On/OFF event를 받을 수 있음
         if (intent == null) {
