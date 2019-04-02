@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"
+        android:textColor="@android:color/black"
         android:inputType="text" />
 
     <LinearLayout
@@ -24,6 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textColor="@android:color/black"
             style="@style/Base.Widget.AppCompat.Button"
             android:text="@string/cancel" />
 
@@ -32,6 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textColor="@android:color/black"
             style="@style/Base.Widget.AppCompat.Button"
             android:text="@string/save" />
     </LinearLayout>

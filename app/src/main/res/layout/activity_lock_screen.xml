@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginStart="20dp"
-    android:layout_marginEnd="20dp"
+    android:background="@android:color/white"
     android:orientation="vertical"
     tools:context=".LockScreen">
 
@@ -13,18 +12,22 @@
         android:id="@+id/txt_survey_metrics"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxLines="2"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:gravity="center"
-        android:textSize="@dimen/question_txt_size"
+        android:maxLines="2"
+        android:text="@string/dummy"
         android:textColor="@android:color/black"
-        android:text="@string/dummy"/>
+        android:textSize="@dimen/question_txt_size" />
 
     <TextView
         android:id="@+id/current_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="2dp"
+        android:layout_marginEnd="20dp"
         android:text="@string/dummy"
         android:textColor="@android:color/black"
         android:textSize="20sp"
@@ -35,6 +38,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:text="@string/dummy"
         android:textColor="@android:color/black"
         android:textSize="20sp"
@@ -50,9 +55,11 @@
 
     <!-- Question Location -->
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="5dp"
+        android:layout_marginEnd="20dp"
         android:text="@string/question_location"
         android:textColor="@android:color/black"
         android:textSize="@dimen/question_txt_size" />
@@ -62,19 +69,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="2dp"
+        android:layout_marginEnd="20dp"
         android:orientation="horizontal">
 
         <RadioButton
             android:id="@+id/location_btn_1"
             android:layout_width="0dp"
             android:layout_height="40dp"
+            android:layout_gravity="center"
             android:layout_marginEnd="20dp"
             android:layout_weight="1"
             android:background="@drawable/bg_radio_btn"
             android:button="@android:color/transparent"
             android:ellipsize="end"
-            android:layout_gravity="center"
             android:maxLines="2"
             android:text="@string/dummy"
             android:textAlignment="center"
@@ -85,12 +94,12 @@
             android:id="@+id/location_btn_2"
             android:layout_width="0dp"
             android:layout_height="40dp"
+            android:layout_gravity="center"
             android:layout_marginEnd="20dp"
             android:layout_weight="1"
             android:background="@drawable/bg_radio_btn"
             android:button="@android:color/transparent"
             android:ellipsize="end"
-            android:layout_gravity="center"
             android:maxLines="2"
             android:text="@string/dummy"
             android:textAlignment="center"
@@ -101,12 +110,12 @@
             android:id="@+id/location_btn_3"
             android:layout_width="0dp"
             android:layout_height="40dp"
+            android:layout_gravity="center"
             android:layout_marginEnd="20dp"
             android:layout_weight="1"
             android:background="@drawable/bg_radio_btn"
             android:button="@android:color/transparent"
             android:ellipsize="end"
-            android:layout_gravity="center"
             android:maxLines="2"
             android:text="@string/dummy"
             android:textAlignment="center"
@@ -117,11 +126,11 @@
             android:id="@+id/location_btn_4"
             android:layout_width="0dp"
             android:layout_height="40dp"
+            android:layout_gravity="center"
             android:layout_weight="1"
             android:background="@drawable/bg_radio_btn"
             android:button="@android:color/transparent"
             android:ellipsize="end"
-            android:layout_gravity="center"
             android:maxLines="2"
             android:onClick="etcClicked"
             android:text="@string/etc"
@@ -136,7 +145,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:layout_marginEnd="25dp"
+        android:layout_marginEnd="45dp"
         android:contentDescription="@string/app_name"
         android:src="@drawable/ic_more_down" />
 
@@ -144,6 +153,8 @@
         android:id="@+id/gv_locations"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:background="@drawable/bg_radio_btn"
         android:horizontalSpacing="15dp"
         android:numColumns="4"
@@ -153,9 +164,11 @@
 
     <!-- Question Activity -->
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="5dp"
+        android:layout_marginEnd="20dp"
         android:text="@string/question_activity"
         android:textColor="@android:color/black"
         android:textSize="@dimen/question_txt_size" />
@@ -165,19 +178,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="2dp"
+        android:layout_marginEnd="20dp"
         android:orientation="horizontal">
 
         <RadioButton
             android:id="@+id/activity_btn_1"
             android:layout_width="0dp"
             android:layout_height="40dp"
+            android:layout_gravity="center"
             android:layout_marginEnd="20dp"
             android:layout_weight="1"
             android:background="@drawable/bg_radio_btn"
             android:button="@android:color/transparent"
             android:ellipsize="end"
-            android:layout_gravity="center"
             android:maxLines="2"
             android:text="@string/dummy"
             android:textAlignment="center"
@@ -188,12 +203,12 @@
             android:id="@+id/activity_btn_2"
             android:layout_width="0dp"
             android:layout_height="40dp"
+            android:layout_gravity="center"
             android:layout_marginEnd="20dp"
             android:layout_weight="1"
             android:background="@drawable/bg_radio_btn"
             android:button="@android:color/transparent"
             android:ellipsize="end"
-            android:layout_gravity="center"
             android:maxLines="2"
             android:text="@string/dummy"
             android:textAlignment="center"
@@ -204,12 +219,12 @@
             android:id="@+id/activity_btn_3"
             android:layout_width="0dp"
             android:layout_height="40dp"
+            android:layout_gravity="center"
             android:layout_marginEnd="20dp"
             android:layout_weight="1"
             android:background="@drawable/bg_radio_btn"
             android:button="@android:color/transparent"
             android:ellipsize="end"
-            android:layout_gravity="center"
             android:maxLines="2"
             android:text="@string/dummy"
             android:textAlignment="center"
@@ -220,11 +235,11 @@
             android:id="@+id/activity_btn_4"
             android:layout_width="0dp"
             android:layout_height="40dp"
+            android:layout_gravity="center"
             android:layout_weight="1"
             android:background="@drawable/bg_radio_btn"
             android:button="@android:color/transparent"
             android:ellipsize="end"
-            android:layout_gravity="center"
             android:maxLines="2"
             android:onClick="etcClicked"
             android:text="@string/etc"
@@ -239,7 +254,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:layout_marginEnd="25dp"
+        android:layout_marginEnd="45dp"
         android:contentDescription="@string/app_name"
         android:src="@drawable/ic_more_down" />
 
@@ -247,6 +262,8 @@
         android:id="@+id/gv_activity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:background="@drawable/bg_radio_btn"
         android:horizontalSpacing="15dp"
         android:numColumns="4"
@@ -256,9 +273,11 @@
 
     <!-- Question 1 -->
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="3dp"
+        android:layout_marginEnd="20dp"
         android:text="@string/question_1"
         android:textColor="@android:color/black"
         android:textSize="@dimen/question_txt_size" />
@@ -266,8 +285,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -332,10 +351,11 @@
 
     <!-- Question 2 -->
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="5dp"
-        android:layout_marginEnd="30dp"
+        android:layout_marginEnd="20dp"
         android:text="@string/question_2"
         android:textColor="@android:color/black"
         android:textSize="@dimen/question_txt_size" />
@@ -343,8 +363,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -409,9 +429,11 @@
 
     <!-- Question 3 -->
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="5dp"
+        android:layout_marginEnd="20dp"
         android:text="@string/question_3"
         android:textColor="@android:color/black"
         android:textSize="@dimen/question_txt_size" />
@@ -419,8 +441,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -485,9 +507,11 @@
 
     <!-- Question 4 -->
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="5dp"
+        android:layout_marginEnd="20dp"
         android:text="@string/question_4"
         android:textColor="@android:color/black"
         android:textSize="@dimen/question_txt_size" />
@@ -496,8 +520,8 @@
         android:id="@+id/question_4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
         android:hint="@string/hint_question_4"
         android:imeOptions="actionDone"
         android:inputType="text"
@@ -508,8 +532,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginEnd="30dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
         android:orientation="horizontal">
 
         <Button

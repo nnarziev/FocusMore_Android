@@ -179,21 +179,37 @@ public class Location_Activity_History extends Activity {
                     try {
                         request = new PHPRequest(url);
                         String result = request.PhPtest(PHPRequest.SERV_CODE_SHOW_RD, email, null, null, null, null, null, null, null, null, null);
-                        Log.d(TAG, "Result: " + result);
-                        if (result.equals(Tools.RES_FAIL)) {
-                            Toast.makeText(activity, "Failed to get data (No such user)", Toast.LENGTH_SHORT).show();
-                        } else {
-                            JSONArray jsonArray = new JSONArray(result);
-                            Log.d(TAG, "Data is received");
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject obj = jsonArray.getJSONObject(i);
-                                long start_time = Long.parseLong(obj.getString("start_time"));
-                                long end_time = Long.parseLong(obj.getString("end_time"));
-                                int duration = Integer.parseInt(obj.getString("elapsed_time"));
-                                String txt_act = obj.getString("activity");
-                                String txt_loc = obj.getString("location");
+                        if (result == null) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(activity, "Server is shut down", Toast.LENGTH_SHORT).show();
+                                    enableTouch();
+                                }
+                            });
 
-                                globalDataModels.add(new HistoryListDataModel(start_time, end_time, duration, txt_act, txt_loc));
+                        } else {
+                            if (result.equals(Tools.RES_FAIL)) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(activity, "Failed to get data (No such user)", Toast.LENGTH_SHORT).show();
+                                        enableTouch();
+                                    }
+                                });
+                            } else {
+                                JSONArray jsonArray = new JSONArray(result);
+                                Log.d(TAG, "Data is received");
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject obj = jsonArray.getJSONObject(i);
+                                    long start_time = Long.parseLong(obj.getString("start_time"));
+                                    long end_time = Long.parseLong(obj.getString("end_time"));
+                                    int duration = Integer.parseInt(obj.getString("elapsed_time"));
+                                    String txt_act = obj.getString("activity");
+                                    String txt_loc = obj.getString("location");
+
+                                    globalDataModels.add(new HistoryListDataModel(start_time, end_time, duration, txt_act, txt_loc));
+                                }
                             }
                         }
                     } catch (MalformedURLException | JSONException e) {

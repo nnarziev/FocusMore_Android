@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -826,6 +827,26 @@ public class LockScreen extends AppCompatActivity {
                 switch (action) {
                     case ACTION_HOME_CLIKC:
                         Log.d(TAG, "Pressed home button!");
+                        //region Saving later state in shared pref
+                        Calendar curTime = Calendar.getInstance();
+                        //if touching of "Later" button is pressed second time after notification opening notification don't save the state (Save only when pressed first time)
+                        if (!getIntent().getBooleanExtra("LaterNotification", false)) {
+                            sharedPrefLaterStateEditor.putInt("Duration", difference_time);
+                            sharedPrefLaterStateEditor.apply();
+                            sharedPrefLaterStateEditor.putLong("Timestamp", curTime.getTimeInMillis());
+                            sharedPrefLaterStateEditor.apply();
+                            sharedPrefLaterStateEditor.putInt("Time_Passed", 0);
+                            sharedPrefLaterStateEditor.apply();
+                        }
+                        //endregion
+
+                        NotificationCompat.Builder nb = mNotificationHelper.getChannel2Notification(getString(R.string.app_name), "설문 화면으로 이동 (5분 안에 설문에 참여해 주세요!)");
+                        mNotificationHelper.getManager().notify(2, nb.build());
+
+                        restartServiceAndFinishActivity();
+                        sharedPrefModesEditor.putInt("Shaked", 0);
+                        sharedPrefModesEditor.apply();
+                        /*
                         //State Type 2 -> cancel
                         calStart = Calendar.getInstance();
                         calEnd = Calendar.getInstance();
@@ -840,6 +861,7 @@ public class LockScreen extends AppCompatActivity {
 
                         sharedPrefModesEditor.putInt("Shaked", 0);
                         sharedPrefModesEditor.apply();
+                        */
                         break;
                     case ACTION_NOTIFICATION_CLIKC:
                         int flag = sharedPrefModes.getInt("Flag", -1);

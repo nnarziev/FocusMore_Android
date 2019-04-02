@@ -15,9 +15,9 @@ public class App extends Application {
     private SharedPreferences sharedPrefModes = null;
     private SharedPreferences.Editor sharedPrefModesEditor = null;
 
-    public static final int trigger_duration_in_second = 2;
-    public static final int screen_appear_threshold = 0;
-    public static final int notification_pass_time_limit = 5;
+    public static final int trigger_duration_in_second = 30;
+    public static final int screen_appear_threshold = 5;
+    public static final int notification_pass_time_limit = 40;
 
     @Override
     public void onCreate() {
