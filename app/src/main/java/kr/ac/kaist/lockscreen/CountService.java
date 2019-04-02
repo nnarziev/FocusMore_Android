@@ -17,14 +17,13 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.net.MalformedURLException;
 import java.util.Calendar;
 
 import static kr.ac.kaist.lockscreen.App.CHANNEL_1_ID;
-import static kr.ac.kaist.lockscreen.LockScreen.action;
-import static kr.ac.kaist.lockscreen.NotificationHelper.notification_pass_time_limit;
+import static kr.ac.kaist.lockscreen.App.notification_pass_time_limit;
+import static kr.ac.kaist.lockscreen.App.trigger_duration_in_second;
 
 public class CountService extends Service implements SensorEventListener {
 
@@ -39,7 +38,6 @@ public class CountService extends Service implements SensorEventListener {
     private DatabaseHelper db;
 
     private boolean isStop = false;
-    private int trigger_duration_in_second = 1;
     private boolean shake_flag;
     private int shake_time = 0;
 
@@ -191,13 +189,16 @@ public class CountService extends Service implements SensorEventListener {
                         sharedPrefLaterStateEditor.putInt("Time_Passed", 1);
                         sharedPrefLaterStateEditor.apply();
 
+
                         Calendar calStart = Calendar.getInstance();
                         Calendar calEnd = Calendar.getInstance();
                         long end_time = sharedPrefLaterState.getLong("Timestamp", -1);
                         calEnd.setTimeInMillis(end_time);
                         calStart.setTimeInMillis(end_time - (sharedPrefLaterState.getInt("Duration", -1) * 1000));
-
+                        Log.e(TAG, "HERE");
                         submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), sharedPrefLaterState.getInt("Duration", -1), (short) 2, "", "", "");
+                        sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", sharedPrefModes.getInt("Total_displayed_surveys_cnt", -1) + 1);
+                        sharedPrefModesEditor.apply();
                     }
                 }
 

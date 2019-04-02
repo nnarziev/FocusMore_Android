@@ -46,54 +46,77 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/txt_service_check"
+        android:id="@+id/txt_survey_metrics"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:layout_marginTop="15dp"
-        android:textSize="20sp"
+        android:maxLines="2"
+        android:layout_marginTop="10dp"
+        android:text="@string/dummy"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:padding="10dp"
+        android:background="#0f0"
         android:textColor="@android:color/black"
-        android:text="@string/dummy"/>
+        android:textSize="18sp" />
 
     <Button
         android:id="@+id/esmResult"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:background="@drawable/bg_btn"
         android:layout_gravity="center"
-        android:layout_margin="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/bg_btn"
+        android:padding="20dp"
         android:text="@string/history_esm" />
 
     <Button
         android:id="@+id/btn_mng_locations"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:background="@drawable/bg_btn"
         android:layout_gravity="center"
-        android:layout_margin="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/bg_btn"
+        android:padding="20dp"
         android:text="manage locations" />
 
     <Button
         android:id="@+id/btn_mng_activities"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:layout_margin="20dp"
         android:layout_gravity="center"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="15dp"
         android:background="@drawable/bg_btn"
+        android:padding="20dp"
         android:text="manage activities" />
 
     <Button
         android:id="@+id/btn_srv_restart"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:layout_margin="20dp"
         android:layout_gravity="center"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="15dp"
         android:background="@drawable/bg_btn"
+        android:padding="20dp"
         android:text="restart the service" />
+
+    <TextView
+        android:id="@+id/txt_service_check"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:gravity="center"
+        android:text="@string/dummy"
+        android:textColor="@android:color/black"
+        android:textSize="18sp" />
 
     <Button
         android:id="@+id/confirm"

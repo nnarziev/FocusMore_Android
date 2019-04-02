@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Looper;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.WindowManager;
@@ -53,9 +54,14 @@ class Tools {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    static void execute(MyRunnable runnable) {
-        disable_touch(runnable.activity);
-        executor.execute(runnable);
+    static void execute(final MyRunnable runnable) {
+        runnable.activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                disable_touch(runnable.activity);
+                executor.execute(runnable);
+            }
+        });
     }
 
     static void executeForService(MyServiceRunnable runnable) {

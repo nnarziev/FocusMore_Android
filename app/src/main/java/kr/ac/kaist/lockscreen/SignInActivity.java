@@ -35,7 +35,6 @@ public class SignInActivity extends Activity {
         userEmail = findViewById(R.id.txt_email);
         userPassword = findViewById(R.id.txt_password);
         // endregion
-        Log.d(TAG, "init: ");
         if (loginPrefs == null)
             loginPrefs = getSharedPreferences("UserLogin", 0);
 

@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.util.Calendar;
 
 import static android.content.Context.POWER_SERVICE;
+import static kr.ac.kaist.lockscreen.App.screen_appear_threshold;
 
 
 public class ScreenReceiver extends BroadcastReceiver {
@@ -25,7 +26,7 @@ public class ScreenReceiver extends BroadcastReceiver {
     protected SharedPreferences sharedPref = null;
     protected SharedPreferences.Editor sharedPrefEditor = null;
     private Context context;
-    private static final int screen_appear_threshold = 1;
+
 
     @Override
     public void onReceive(Context con, Intent intent) {

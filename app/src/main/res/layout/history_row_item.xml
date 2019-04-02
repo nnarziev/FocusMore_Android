@@ -10,7 +10,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_marginEnd="20dp"
         android:orientation="vertical">
 
         <TextView
@@ -19,8 +18,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
             android:text="@string/time"
-            android:textSize="18sp"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
 
         <View
             android:layout_width="2dp"
@@ -33,20 +32,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:textSize="18sp"
             android:text="@string/time"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/text_activity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:layout_gravity="center"
+        android:layout_marginStart="35dp"
+        android:layout_toEndOf="@id/detailed_view_time"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:layout_toEndOf="@id/detailed_view_time"
-        android:layout_centerVertical="true"
         android:text="@string/dummy"
         android:textColor="@android:color/black"
         android:textSize="18sp" />
@@ -63,37 +63,36 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="30dp"
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:text="@string/dummy"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="20dp"
             android:textColor="@android:color/black"
             android:textSize="18sp" />
 
 
         <ImageView
-            android:visibility="gone"
             android:id="@id/edit"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center|end"
             android:focusable="false"
             android:focusableInTouchMode="false"
-            android:src="@drawable/ic_edit" />
+            android:src="@drawable/ic_edit"
+            android:visibility="gone" />
     </LinearLayout>
-
 
 
     <TextView
         android:id="@+id/activity_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:text="@string/duration"
-        android:layout_marginEnd="20dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:textColor="@android:color/black"/>
+        android:layout_marginEnd="30dp"
+        android:text="@string/duration"
+        android:textColor="@android:color/black"
+        android:textSize="18sp" />
 
 </RelativeLayout>

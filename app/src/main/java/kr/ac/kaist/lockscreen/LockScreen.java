@@ -3,6 +3,7 @@ package kr.ac.kaist.lockscreen;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -39,14 +40,13 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 
 import static kr.ac.kaist.lockscreen.Adapters.GridAdapter.ADD_NEW_ITEM_TAG;
+import static kr.ac.kaist.lockscreen.App.notification_pass_time_limit;
 import static kr.ac.kaist.lockscreen.DatabaseHelper.ACTIVITIES;
 import static kr.ac.kaist.lockscreen.DatabaseHelper.LOCATIONS;
 
 public class LockScreen extends AppCompatActivity {
     public static final String TAG = "LockScreen";
 
-    //region UI variables
-    private TextView txtSurveyMetrics;
     private TextView txtCurrentTime;
     private TextView txtTimer;
     private RadioGroup rgLocations;
@@ -156,8 +156,6 @@ public class LockScreen extends AppCompatActivity {
 
             //Start the service
             startService(intentService);
-            sharedPrefModesEditor.putInt("Shaked", 0);
-            sharedPrefModesEditor.apply();
 
             handler = new Handler() {
                 @Override
@@ -169,20 +167,27 @@ public class LockScreen extends AppCompatActivity {
         } else {
             Calendar curTime = Calendar.getInstance();
             long time_difference = (curTime.getTimeInMillis() / 1000) - (sharedPrefLaterState.getLong("Timestamp", -1) / 1000);
-            if (time_difference > 5) {
+            if (time_difference > notification_pass_time_limit) {
                 Toast.makeText(this, "5분이 경과되어 설문에 참여할 수 없습니다. 다음에는 꼭 참여 부탁드립니다!", Toast.LENGTH_LONG).show();
+                Intent intentHome = new Intent(Intent.ACTION_MAIN); //태스크의 첫 액티비티로 시작
+                intentHome.addCategory(Intent.CATEGORY_HOME);   //홈화면 표시
+                intentHome.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //새로운 태스크를 생성하여 그 태스크안에서 액티비티 추가
                 finish();
-            } else
+                startActivity(intentHome); // Start the home activity
+            } else {
+                stopService(intentService);
                 initLaterStateFromNotif();
+            }
         }
+        sharedPrefModesEditor.putInt("Shaked", 0);
+        sharedPrefModesEditor.apply();
 
 
     }
 
     private void initUIVars() {
 
-        //region Initialize UI variables
-        txtSurveyMetrics = findViewById(R.id.txt_survey_metrics);
+        //region UI variables
         txtCurrentTime = findViewById(R.id.current_time);
         txtTimer = findViewById(R.id.timer);
         rgLocations = findViewById(R.id.rg_locations);
@@ -198,6 +203,31 @@ public class LockScreen extends AppCompatActivity {
         drawableArrowDown = getResources().getIdentifier("ic_more_down", "drawable", getApplicationContext().getPackageName());
         drawableArrowUp = getResources().getIdentifier("ic_more_up", "drawable", getApplicationContext().getPackageName());
         //endregion
+
+        //region Showing the progress in response rate
+        Calendar curDate = Calendar.getInstance();
+        Calendar surveysDate = Calendar.getInstance();
+        surveysDate.setTimeInMillis(sharedPrefModes.getLong("Surveys_cnt_date", -1));
+        if (surveysDate.get(Calendar.DAY_OF_MONTH) != curDate.get(Calendar.DAY_OF_MONTH)) {
+            sharedPrefModesEditor.putLong("Surveys_cnt_date", curDate.getTimeInMillis());
+            sharedPrefModesEditor.apply();
+            sharedPrefModesEditor.putInt("Total_responded_surveys_cnt", 0);
+            sharedPrefModesEditor.apply();
+            sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", 0);
+            sharedPrefModesEditor.apply();
+        }
+
+        int total_responded = sharedPrefModes.getInt("Total_responded_surveys_cnt", -1);
+        int total_displayed = sharedPrefModes.getInt("Total_displayed_surveys_cnt", -1);
+        float perc = 0;
+        if (total_displayed == 0)
+            perc = ((float) total_responded / (total_displayed + 1));
+        else
+            perc = ((float) total_responded / total_displayed);
+        TextView txtSurveyMetrics = findViewById(R.id.txt_survey_metrics);
+        txtSurveyMetrics.setText("오늘의 설문 응답률 " + (int) (perc * 100) + "% (설문 출력: " + total_displayed + "회, 설문 응답: " + total_responded + "회)");
+        //endregion
+
 
     }
 
@@ -233,42 +263,6 @@ public class LockScreen extends AppCompatActivity {
             txtTimer.setText("잠금 모드 해제!");
         }
 
-    }
-
-    private void updateThread() {
-        Calendar c = Calendar.getInstance();
-        String sDate = c.get(Calendar.MONTH) + 1 + "월"
-                + c.get(Calendar.DAY_OF_MONTH) + "일 "
-                + c.get(Calendar.HOUR_OF_DAY) + ":"
-                + String.format(Locale.ENGLISH, "%02d", c.get(Calendar.MINUTE));
-        txtCurrentTime.setText(sDate);
-
-        int previous_time = sharedPrefModes.getInt("Count", -1); //becomes 1 when in Focus Mode
-        int current_time = (int) System.currentTimeMillis() / 1000;
-        if (sharedPrefModes.getInt("Shaked", -1) == 0 && sharedPrefModes.getInt("FocusMode", -1) == 1) {
-            difference_time = current_time - previous_time;
-            int hour = 0;
-            int min = 0;
-            int sec = 0;
-
-            if (difference_time > 0) {
-                if (difference_time < 60) {
-                    sec = difference_time;
-                    txtTimer.setText(String.format(Locale.ENGLISH, "%d%s", sec, getString(R.string.seconds)));
-                } else if (difference_time < 3600) {
-                    min = difference_time / 60;
-                    sec = difference_time % 60;
-                    txtTimer.setText(String.format(Locale.ENGLISH, "%d%s %d%s", min, getString(R.string.min), sec, getString(R.string.seconds)));
-                } else {
-                    hour = difference_time / 3600;
-                    min = (difference_time % 3600) / 60;
-                    sec = difference_time % 60;
-                    txtTimer.setText(String.format(Locale.ENGLISH, "%d%s %d%s %d%s", hour, getString(R.string.hours), min, getString(R.string.min), sec, getString(R.string.seconds)));
-                }
-            } else {
-                txtTimer.setText("잠금 모드 해제!");
-            }
-        }
     }
 
     public void initLocations() {
@@ -452,12 +446,49 @@ public class LockScreen extends AppCompatActivity {
         });
     }
 
+    private void updateThread() {
+        Calendar c = Calendar.getInstance();
+        String sDate = c.get(Calendar.MONTH) + 1 + "월"
+                + c.get(Calendar.DAY_OF_MONTH) + "일 "
+                + c.get(Calendar.HOUR_OF_DAY) + ":"
+                + String.format(Locale.ENGLISH, "%02d", c.get(Calendar.MINUTE));
+        txtCurrentTime.setText(sDate);
+
+        int previous_time = sharedPrefModes.getInt("Count", -1); //becomes 1 when in Focus Mode
+        int current_time = (int) System.currentTimeMillis() / 1000;
+        if (sharedPrefModes.getInt("Shaked", -1) == 0 && sharedPrefModes.getInt("FocusMode", -1) == 1) {
+            difference_time = current_time - previous_time;
+            int hour = 0;
+            int min = 0;
+            int sec = 0;
+
+            if (difference_time > 0) {
+                if (difference_time < 60) {
+                    sec = difference_time;
+                    txtTimer.setText(String.format(Locale.ENGLISH, "%d%s", sec, getString(R.string.seconds)));
+                } else if (difference_time < 3600) {
+                    min = difference_time / 60;
+                    sec = difference_time % 60;
+                    txtTimer.setText(String.format(Locale.ENGLISH, "%d%s %d%s", min, getString(R.string.min), sec, getString(R.string.seconds)));
+                } else {
+                    hour = difference_time / 3600;
+                    min = (difference_time % 3600) / 60;
+                    sec = difference_time % 60;
+                    txtTimer.setText(String.format(Locale.ENGLISH, "%d%s %d%s %d%s", hour, getString(R.string.hours), min, getString(R.string.min), sec, getString(R.string.seconds)));
+                }
+            } else {
+                txtTimer.setText("잠금 모드 해제!");
+            }
+        }
+    }
+
     public void restartServiceAndFinishActivity() {
 
         //region Restart the service
         intentService = new Intent(this, CountService.class);
         stopService(intentService);
         startService(intentService);
+        Log.e(TAG, "restartServiceAndFinishActivity: ");
         sharedPrefModesEditor.putInt("FocusMode", 0);
         sharedPrefModesEditor.apply();
         //endregion
@@ -491,7 +522,7 @@ public class LockScreen extends AppCompatActivity {
         NotificationCompat.Builder nb = mNotificationHelper.getChannel2Notification(getString(R.string.app_name), "설문 화면으로 이동 (5분 안에 설문에 참여해 주세요!)");
         mNotificationHelper.getManager().notify(2, nb.build());
 
-        finish();
+        restartServiceAndFinishActivity();
         sharedPrefModesEditor.putInt("Shaked", 0);
         sharedPrefModesEditor.apply();
     }
@@ -542,6 +573,13 @@ public class LockScreen extends AppCompatActivity {
 
         String restResultData = String.format(Locale.ENGLISH, "%d%d%d%s", seekBarQ1.getProgress() + 1, seekBarQ2.getProgress() + 1, seekBarQ3.getProgress() + 1, editTextQ4.getText());
         submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 3, chosenLocationRB.getText().toString(), chosenActivityRB.getText().toString(), restResultData);
+
+        sharedPrefLaterStateEditor.putInt("Time_Passed", 1);
+        sharedPrefLaterStateEditor.apply();
+        sharedPrefModesEditor.putInt("Total_responded_surveys_cnt", sharedPrefModes.getInt("Total_responded_surveys_cnt", -1) + 1);
+        sharedPrefModesEditor.apply();
+        sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", sharedPrefModes.getInt("Total_displayed_surveys_cnt", -1) + 1);
+        sharedPrefModesEditor.apply();
 
         //region Updating accumulated duration time for location and activity
         for (Map.Entry<String, Integer> entry : durationsActivity.entrySet()) {
@@ -674,6 +712,7 @@ public class LockScreen extends AppCompatActivity {
             restartServiceAndFinishActivity();
 
         }
+        restartServiceAndFinishActivity();
 
         sharedPrefModesEditor.putInt("Flag", 0);
         sharedPrefModesEditor.apply();
@@ -688,7 +727,6 @@ public class LockScreen extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        ;
         //Log.i("onStart", "onStart");
         myThread = new Thread(new Runnable() {
             @Override
@@ -749,6 +787,7 @@ public class LockScreen extends AppCompatActivity {
                 calStart.setTimeInMillis(start_time);
                 calEnd.setTimeInMillis(end_time);
 
+                Log.e(TAG, "onStop: ");
                 submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 1, "", "", "");
 
             } catch (Exception e) {
@@ -796,6 +835,8 @@ public class LockScreen extends AppCompatActivity {
                         calEnd.setTimeInMillis(end_time);
 
                         submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), difference_time, (short) 2, "", "", "");
+                        sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", sharedPrefModes.getInt("Total_displayed_surveys_cnt", -1) + 1);
+                        sharedPrefModesEditor.apply();
 
                         sharedPrefModesEditor.putInt("Shaked", 0);
                         sharedPrefModesEditor.apply();
@@ -823,6 +864,8 @@ public class LockScreen extends AppCompatActivity {
 
                             db = new DatabaseHelper(LockScreen.this); //reinit DB
                             submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) (duration / 1000), (short) 1, "", "", "");  //submit raw data when notification is clicked
+                            sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", sharedPrefModes.getInt("Total_displayed_surveys_cnt", -1) + 1);
+                            sharedPrefModesEditor.apply();
                         } else
                             Log.d(TAG, "FROM ELSE");
                         break;
@@ -837,4 +880,5 @@ public class LockScreen extends AppCompatActivity {
 
         super.onUserLeaveHint();
     }
+
 }

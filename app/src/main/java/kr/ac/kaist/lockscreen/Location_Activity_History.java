@@ -179,6 +179,7 @@ public class Location_Activity_History extends Activity {
                     try {
                         request = new PHPRequest(url);
                         String result = request.PhPtest(PHPRequest.SERV_CODE_SHOW_RD, email, null, null, null, null, null, null, null, null, null);
+                        Log.d(TAG, "Result: " + result);
                         if (result.equals(Tools.RES_FAIL)) {
                             Toast.makeText(activity, "Failed to get data (No such user)", Toast.LENGTH_SHORT).show();
                         } else {

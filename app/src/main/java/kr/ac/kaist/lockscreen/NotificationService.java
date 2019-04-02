@@ -11,7 +11,7 @@ import android.util.Log;
 import java.net.MalformedURLException;
 import java.util.Calendar;
 
-import static kr.ac.kaist.lockscreen.NotificationHelper.notification_pass_time_limit;
+import static kr.ac.kaist.lockscreen.App.notification_pass_time_limit;
 
 public class NotificationService extends NotificationListenerService {
 
@@ -52,26 +52,34 @@ public class NotificationService extends NotificationListenerService {
     public void onNotificationRemoved(StatusBarNotification sbn, RankingMap rankingMap, int reason) {
         //if this removed notification is postponed survey notification (notification id = 2)
         if (sbn.getId() == 2) {
+            if (reason == NotificationListenerService.REASON_CANCEL) {
 
-            long time_difference = (Calendar.getInstance().getTimeInMillis() / 1000) - (sharedPrefLaterState.getLong("Timestamp", -1) / 1000);
-            if (time_difference <= notification_pass_time_limit) {
-                Calendar calStart = Calendar.getInstance();
-                Calendar calEnd = Calendar.getInstance();
-                long end_time = sharedPrefLaterState.getLong("Timestamp", -1);
-                calEnd.setTimeInMillis(end_time);
-                calStart.setTimeInMillis(end_time - (sharedPrefLaterState.getInt("Duration", -1) * 1000));
+                long time_difference = (Calendar.getInstance().getTimeInMillis() / 1000) - (sharedPrefLaterState.getLong("Timestamp", -1) / 1000);
+                if (time_difference <= notification_pass_time_limit) {
+                    sharedPrefLaterStateEditor.putInt("Time_Passed", 1);
+                    sharedPrefLaterStateEditor.apply();
+                    Calendar calStart = Calendar.getInstance();
+                    Calendar calEnd = Calendar.getInstance();
+                    long end_time = sharedPrefLaterState.getLong("Timestamp", -1);
+                    calEnd.setTimeInMillis(end_time);
+                    calStart.setTimeInMillis(end_time - (sharedPrefLaterState.getInt("Duration", -1) * 1000));
 
-                submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), sharedPrefLaterState.getInt("Duration", -1), (short) 2, "", "", "");
+                    submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), sharedPrefLaterState.getInt("Duration", -1), (short) 2, "", "", "");
+                    sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", sharedPrefModes.getInt("Total_displayed_surveys_cnt", -1) + 1);
+                    sharedPrefModesEditor.apply();
 
+                }
             }
         }
         //If notification was clicked save the state as type1 and restart the service
         if (reason == NotificationListenerService.REASON_CLICK) {
-            LockScreen.action = LockScreen.Action.ACTION_NOTIFICATION_CLIKC;
+            if (sbn.getId() != 2)
+                LockScreen.action = LockScreen.Action.ACTION_NOTIFICATION_CLIKC;
         }
     }
 
-    public void submitRawData(long start_time, long end_time, int duration, short type, String location_txt, String activity_txt, String otherESMResponse) {
+    public void submitRawData(long start_time, long end_time, int duration, short type, String
+            location_txt, String activity_txt, String otherESMResponse) {
         if (Tools.isNetworkAvailable(this)) {
             Log.d(TAG, "With connection case");
             Tools.executeForService(new MyServiceRunnable(

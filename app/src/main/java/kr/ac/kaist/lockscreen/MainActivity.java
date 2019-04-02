@@ -23,13 +23,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Toolbar;
 
+import java.util.Calendar;
+
 import static kr.ac.kaist.lockscreen.DatabaseHelper.ACTIVITIES;
 import static kr.ac.kaist.lockscreen.DatabaseHelper.LOCATIONS;
 
 public class MainActivity extends Activity {
     public static final String TAG = "MainActivity";
-    protected SharedPreferences sharedPref = null;
-    protected SharedPreferences.Editor sharedPrefEditor = null;
+    protected SharedPreferences sharedPrefModes = null;
+    protected SharedPreferences.Editor sharedPrefModesEditor = null;
 
     ConnectionReceiver receiver;
     IntentFilter intentFilter;
@@ -78,6 +80,7 @@ public class MainActivity extends Activity {
     }
 
     public void init() {
+        TextView txtSurveyMetrics = findViewById(R.id.txt_survey_metrics);
         Button btn_reset_service = findViewById(R.id.btn_srv_restart);
         Button btn_esm_history = findViewById(R.id.esmResult);
         Button btn_confirm = findViewById(R.id.confirm);
@@ -87,24 +90,48 @@ public class MainActivity extends Activity {
         //final TextView txt_sec = findViewById(R.id.textView2);
         txt_service_check = findViewById(R.id.txt_service_check);
 
-        sharedPref = getSharedPreferences("Modes", Activity.MODE_PRIVATE);
-        sharedPrefEditor = sharedPref.edit();
+        sharedPrefModes = getSharedPreferences("Modes", Activity.MODE_PRIVATE);
+        sharedPrefModesEditor = sharedPrefModes.edit();
 
-        int set_duration = sharedPref.getInt("Duration", -1);
+        int set_duration = sharedPrefModes.getInt("Duration", -1);
         txt_input_sec.setText(String.valueOf(set_duration));
 
         //락스크린 서비스 실행(카운트도 같이 함)
         intentService = new Intent(this, CountService.class);
         startService(intentService);
 
+        //region Showing the progress in response rate
+        Calendar curDate = Calendar.getInstance();
+        Calendar surveysDate = Calendar.getInstance();
+        surveysDate.setTimeInMillis(sharedPrefModes.getLong("Surveys_cnt_date", -1));
+        if (surveysDate.get(Calendar.DAY_OF_MONTH) != curDate.get(Calendar.DAY_OF_MONTH)) {
+            sharedPrefModesEditor.putLong("Surveys_cnt_date", curDate.getTimeInMillis());
+            sharedPrefModesEditor.apply();
+            sharedPrefModesEditor.putInt("Total_responded_surveys_cnt", 0);
+            sharedPrefModesEditor.apply();
+            sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", 0);
+            sharedPrefModesEditor.apply();
+        }
 
+        int total_responded = sharedPrefModes.getInt("Total_responded_surveys_cnt", -1);
+        int total_displayed = sharedPrefModes.getInt("Total_displayed_surveys_cnt", -1);
+        float perc = 0;
+        if (total_displayed == 0)
+            perc = ((float) total_responded / (total_displayed + 1));
+        else
+            perc = ((float) total_responded / total_displayed);
+
+        txtSurveyMetrics.setText("오늘의 설문 응답률 " + (int) (perc * 100) + "% (설문 출력: " + total_displayed + "회, 설문 응답: " + total_responded + "회)");
+        //endregion
+
+        //region Buttons handlers
         btn_confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
                     int duration = Integer.parseInt(txt_input_sec.getText().toString());
-                    sharedPrefEditor.putInt("Duration", duration);
-                    sharedPrefEditor.apply();
+                    sharedPrefModesEditor.putInt("Duration", duration);
+                    sharedPrefModesEditor.apply();
                     Log.i("결과", String.valueOf(duration));
 
                     stopService(intentService);
@@ -147,30 +174,29 @@ public class MainActivity extends Activity {
                 stopService(intentService);
                 startService(intentService);
                 Toast.makeText(MainActivity.this, "Service has been restarted!", Toast.LENGTH_SHORT).show();
-                if (!isServiceRunningCheck()){
+                if (!isServiceRunningCheck()) {
                     txt_service_check.setText(R.string.srv_is_not_running);
-                }
-                else{
+                } else {
                     txt_service_check.setText(R.string.srv_is_running);
                 }
             }
         });
+        //endregion
 
-        sharedPrefEditor.putInt("OtherApp", 0);
-        sharedPrefEditor.apply();
+        sharedPrefModesEditor.putInt("OtherApp", 0);
+        sharedPrefModesEditor.apply();
 
-        sharedPrefEditor.putInt("Shake", 1);
-        sharedPrefEditor.apply();
+        sharedPrefModesEditor.putInt("Shake", 1);
+        sharedPrefModesEditor.apply();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         registerReceiver(receiver, intentFilter);
-        if (!isServiceRunningCheck()){
+        if (!isServiceRunningCheck()) {
             txt_service_check.setText(R.string.srv_is_not_running);
-        }
-        else{
+        } else {
             txt_service_check.setText(R.string.srv_is_running);
         }
     }
@@ -190,8 +216,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        sharedPrefEditor.putInt("Flag", 0);
-        sharedPrefEditor.apply();
+        sharedPrefModesEditor.putInt("Flag", 0);
+        sharedPrefModesEditor.apply();
 
         //Log.i("Main Activity:",String.valueOf(pref_flag.getInt("Flag",-1)));
     }
@@ -264,8 +290,8 @@ public class MainActivity extends Activity {
         editor.clear();
         editor.apply();
         stopService(intentService);
-        sharedPrefEditor.putInt("FocusMode", 0);
-        sharedPrefEditor.apply();
+        sharedPrefModesEditor.putInt("FocusMode", 0);
+        sharedPrefModesEditor.apply();
 
         Intent intent = new Intent(MainActivity.this, SignInActivity.class);
         startActivity(intent);
