@@ -7,12 +7,14 @@
 
     <EditText
         android:id="@+id/title"
-        android:hint="@string/dummy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:hint="@string/dummy"
+        android:inputType="text"
         android:textColor="@android:color/black"
-        android:inputType="text" />
+        android:textSize="18sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,21 +24,21 @@
 
         <Button
             android:id="@+id/btn_cancel"
+            style="@style/Base.Widget.AppCompat.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="@android:color/black"
-            style="@style/Base.Widget.AppCompat.Button"
-            android:text="@string/cancel" />
+            android:text="@string/cancel"
+            android:textColor="@android:color/black" />
 
         <Button
             android:id="@+id/btn_save"
+            style="@style/Base.Widget.AppCompat.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="@android:color/black"
-            style="@style/Base.Widget.AppCompat.Button"
-            android:text="@string/save" />
+            android:text="@string/save"
+            android:textColor="@android:color/black" />
     </LinearLayout>
 
 

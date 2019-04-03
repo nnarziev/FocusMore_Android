@@ -14,21 +14,11 @@
     <string name="question_4">지금 스마트폰을 사용하려고 한다면(방금 사용했다면), 사용 목적은 무엇입니까? (무엇이었습니까?)</string>
     <string name="hint_question_4">입력해 주세요 (예: ~하는 중에 ~하기 위해서)</string>
     <string name="question_disturbance">스마트폰 사용은 기록된 시간 동안의 활동을 방해한다고 생각하십니까?</string>
-    <string name="seekbar_val_1_1">매우 낮음</string>
-    <string name="seekbar_val_1_2">낮음</string>
-    <string name="seekbar_val_1_3">보통</string>
-    <string name="seekbar_val_1_4">높음</string>
-    <string name="seekbar_val_1_5">매우 높음</string>
-    <string name="seekbar_val_2_1">전혀 그렇지 않다</string>
-    <string name="seekbar_val_2_2">그렇지 않다</string>
-    <string name="seekbar_val_2_3">보통</string>
-    <string name="seekbar_val_2_4">그렇다</string>
-    <string name="seekbar_val_2_5">매우 그렇다</string>
-    <string name="seekbar_val_3_1">전혀 방해하지 않음</string>
-    <string name="seekbar_val_3_2">약간 방해</string>
-    <string name="seekbar_val_3_3">보통</string>
-    <string name="seekbar_val_3_4">방해</string>
-    <string name="seekbar_val_3_5">매우 방해</string>
+    <string name="seekbar_val_1">전혀 그렇지 않다</string>
+    <string name="seekbar_val_2">그렇지 않다</string>
+    <string name="seekbar_val_3">보통</string>
+    <string name="seekbar_val_4">그렇다</string>
+    <string name="seekbar_val_5">매우 그렇다</string>
     <string name="yes">네</string>
     <string name="no">아니요</string>
     <string name="save">확인</string>
@@ -74,8 +64,10 @@
     <string name="service_restart">Service restart</string>
     <string name="srv_is_running">Service is running :)</string>
     <string name="srv_is_not_running">Service is not running :(</string>
-    <string name="after_timer_text">동안 현재 자리에서 스마트폰을 사용하지 않았습니다</string>
+    <string name="after_timer_text1">동안 현재 자리에서</string>
+    <string name="after_timer_text2">스마트폰을 사용하지 않았습니다</string>
     <string name="later">나중에</string>
+    <string name="current_time">현재 시간:</string>
 
 
 </resources>

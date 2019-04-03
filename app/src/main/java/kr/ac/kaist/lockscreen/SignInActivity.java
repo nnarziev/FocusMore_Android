@@ -80,6 +80,13 @@ public class SignInActivity extends Activity {
                                 Intent intent = new Intent(SignInActivity.this, MainActivity.class);
                                 startActivity(intent);
                                 finish();
+                            }else{
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(SignInActivity.this, "Server is shut down!test", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             }
                         } else {
                             switch (result) {
@@ -117,7 +124,7 @@ public class SignInActivity extends Activity {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            Toast.makeText(SignInActivity.this, "Failed to sign in. (SERVER SIDE ERROR)", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(SignInActivity.this, "Failed to sign in", Toast.LENGTH_SHORT).show();
                                         }
                                     });
                                     break;

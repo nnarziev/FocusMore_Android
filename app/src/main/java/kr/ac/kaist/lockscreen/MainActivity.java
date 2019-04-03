@@ -121,7 +121,7 @@ public class MainActivity extends Activity {
         else
             perc = ((float) total_responded / total_displayed);
 
-        txtSurveyMetrics.setText("오늘의 설문 응답률 " + (int) (perc * 100) + "% (설문 출력: " + total_displayed + "회, 설문 응답: " + total_responded + "회)");
+        txtSurveyMetrics.setText("오늘의 설문 응답률 " + (int) (perc * 100) + "%\n(설문 출력: " + total_displayed + "회, 설문 응답: " + total_responded + "회)");
         //endregion
 
         //region Buttons handlers

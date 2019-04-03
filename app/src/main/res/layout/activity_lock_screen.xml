@@ -20,38 +20,72 @@
         android:textColor="@android:color/black"
         android:textSize="@dimen/question_txt_size" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/current_time"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/current_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="2dp"
+            android:text="@string/dummy"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:text="@string/dummy"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/after_timer_text1"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/question_txt_size" />
+
+    </LinearLayout>
+
     <TextView
-        android:id="@+id/current_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginEnd="20dp"
-        android:text="@string/dummy"
-        android:textColor="@android:color/black"
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/timer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:text="@string/dummy"
-        android:textColor="@android:color/black"
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="230dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/after_timer_text"
+        android:layout_marginTop="-3dp"
+        android:text="@string/after_timer_text2"
         android:textColor="@android:color/black"
         android:textSize="@dimen/question_txt_size" />
+
 
     <!-- Question Location -->
     <TextView
@@ -167,7 +201,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="5dp"
         android:layout_marginEnd="20dp"
         android:text="@string/question_activity"
         android:textColor="@android:color/black"
@@ -276,7 +309,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="3dp"
         android:layout_marginEnd="20dp"
         android:text="@string/question_1"
         android:textColor="@android:color/black"
@@ -304,7 +336,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/seekbar_val_1_1"
+                android:text="@string/seekbar_val_1"
                 android:textAlignment="viewStart"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/ssekbar_txt_size" />
@@ -313,7 +345,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/seekbar_val_1_2"
+                android:text="@string/seekbar_val_2"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/ssekbar_txt_size" />
@@ -322,7 +354,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/seekbar_val_1_3"
+                android:text="@string/seekbar_val_3"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/ssekbar_txt_size" />
@@ -331,7 +363,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/seekbar_val_1_4"
+                android:text="@string/seekbar_val_4"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/ssekbar_txt_size" />
@@ -340,7 +372,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/seekbar_val_1_5"
+                android:text="@string/seekbar_val_5"
                 android:textAlignment="viewEnd"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/ssekbar_txt_size" />
@@ -382,7 +414,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/seekbar_val_2_1"
+                android:text="@string/seekbar_val_1"
                 android:textAlignment="viewStart"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/ssekbar_txt_size" />
@@ -391,7 +423,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/seekbar_val_2_2"
+                android:text="@string/seekbar_val_2"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/ssekbar_txt_size" />
@@ -400,7 +432,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/seekbar_val_2_3"
+                android:text="@string/seekbar_val_3"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/ssekbar_txt_size" />
@@ -409,7 +441,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/seekbar_val_2_4"
+                android:text="@string/seekbar_val_4"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/ssekbar_txt_size" />
@@ -418,7 +450,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/seekbar_val_2_5"
+                android:text="@string/seekbar_val_5"
                 android:textAlignment="viewEnd"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/ssekbar_txt_size" />
@@ -460,7 +492,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/seekbar_val_3_1"
+                android:text="@string/seekbar_val_1"
                 android:textAlignment="viewStart"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/ssekbar_txt_size" />
@@ -469,7 +501,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/seekbar_val_3_2"
+                android:text="@string/seekbar_val_2"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/ssekbar_txt_size" />
@@ -478,7 +510,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/seekbar_val_3_3"
+                android:text="@string/seekbar_val_3"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/ssekbar_txt_size" />
@@ -487,7 +519,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/seekbar_val_3_4"
+                android:text="@string/seekbar_val_4"
                 android:textAlignment="center"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/ssekbar_txt_size" />
@@ -496,7 +528,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/seekbar_val_3_5"
+                android:text="@string/seekbar_val_5"
                 android:textAlignment="viewEnd"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/ssekbar_txt_size" />
@@ -522,6 +554,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:hint="@string/hint_question_4"
         android:imeOptions="actionDone"
         android:inputType="text"
