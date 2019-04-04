@@ -81,6 +81,7 @@ public class CountService extends Service implements SensorEventListener {
         sharedPrefLaterState = getSharedPreferences("LaterState", Activity.MODE_PRIVATE);
         sharedPrefLaterStateEditor = sharedPrefLaterState.edit();
 
+        Log.d(TAG, "startService time: " + String.valueOf(sharedPrefModes.getInt("StartService", -1)));
         sharedPrefModesEditor.putInt("StartService", (int) (System.currentTimeMillis() / 1000));
         sharedPrefModesEditor.apply();
 
@@ -154,6 +155,12 @@ public class CountService extends Service implements SensorEventListener {
             sharedPrefModesEditor.apply();
 
             shake_time = (int) (System.currentTimeMillis() / 1000);
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Log.d(TAG, "Sending movement broadcast");
             sendBroadcast(new Intent("kr.ac.kaist.lockscreen.shake"));
         }
     }
@@ -162,6 +169,8 @@ public class CountService extends Service implements SensorEventListener {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "Service termination");
+        sharedPrefModesEditor.putInt("FocusMode", 0);
+        sharedPrefModesEditor.apply();
         isStop = true;
         shake_flag = false;
         unregisterReceiver(mReceiver);
@@ -195,7 +204,6 @@ public class CountService extends Service implements SensorEventListener {
                         long end_time = sharedPrefLaterState.getLong("Timestamp", -1);
                         calEnd.setTimeInMillis(end_time);
                         calStart.setTimeInMillis(end_time - (sharedPrefLaterState.getInt("Duration", -1) * 1000));
-                        Log.e(TAG, "HERE");
                         submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), sharedPrefLaterState.getInt("Duration", -1), (short) 2, "", "", "");
                         sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", sharedPrefModes.getInt("Total_displayed_surveys_cnt", -1) + 1);
                         sharedPrefModesEditor.apply();
@@ -273,6 +281,7 @@ public class CountService extends Service implements SensorEventListener {
 
                             restartService();
                         } else {
+                            Log.d(TAG, "Result notif: " + result);
                             switch (result) {
                                 case Tools.RES_OK:
                                     Log.d(TAG, "Submitted");
@@ -306,6 +315,7 @@ public class CountService extends Service implements SensorEventListener {
 
         }
 
+        restartService();
         sharedPrefModesEditor.putInt("Flag", 0);
         sharedPrefModesEditor.apply();
 

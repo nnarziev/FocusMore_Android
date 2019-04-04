@@ -151,7 +151,7 @@ public class NotificationService extends NotificationListenerService {
             restartService();
 
         }
-
+        restartService();
         sharedPrefModesEditor.putInt("Flag", 0);
         sharedPrefModesEditor.apply();
 

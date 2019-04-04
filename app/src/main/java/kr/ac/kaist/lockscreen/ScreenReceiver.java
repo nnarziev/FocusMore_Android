@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.PowerManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.net.MalformedURLException;
 import java.util.Calendar;
@@ -23,8 +22,8 @@ public class ScreenReceiver extends BroadcastReceiver {
 
     public static final String TAG = "ScreenReceiver";
     private DatabaseHelper db;
-    protected SharedPreferences sharedPref = null;
-    protected SharedPreferences.Editor sharedPrefEditor = null;
+    protected SharedPreferences sharedPrefModes = null;
+    protected SharedPreferences.Editor sharedPrefModesEditor = null;
     private Context context;
 
 
@@ -34,50 +33,50 @@ public class ScreenReceiver extends BroadcastReceiver {
 
         db = new DatabaseHelper(context);
 
-        sharedPref = context.getSharedPreferences("Modes", Activity.MODE_PRIVATE);
-        sharedPrefEditor = sharedPref.edit();
+        sharedPrefModes = context.getSharedPreferences("Modes", Activity.MODE_PRIVATE);
+        sharedPrefModesEditor = sharedPrefModes.edit();
 
 
-        int focus = sharedPref.getInt("FocusMode", -1);
+        int focus = sharedPrefModes.getInt("FocusMode", -1);
 
         Calendar calStart = Calendar.getInstance();
         Calendar calEnd = Calendar.getInstance();
-        long start_time = sharedPref.getLong("data_start_timestamp", -1);
+        long start_time = sharedPrefModes.getLong("data_start_timestamp", -1);
         long end_time = System.currentTimeMillis();
         long duration = (end_time - start_time) / 1000;
 
         //pref_other = context.getSharedPreferences("OtherApp", Activity.MODE_PRIVATE); //다른 앱(홈화면 포함) 실행 중인가?
         //editor_other = pref_other.edit();
 
-        if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
-            sharedPrefEditor.putInt("Typing", 1);
-            sharedPrefEditor.apply();
+        switch (intent.getAction()) {
+            case Intent.ACTION_SCREEN_ON:
+                sharedPrefModesEditor.putInt("Typing", 1);
+                sharedPrefModesEditor.apply();
 
-            if (focus == 1 && duration > screen_appear_threshold) {
-                Log.d(TAG, "The smartphone screen is on (timer expired)");
-                Intent i = new Intent(context, LockScreen.class);
-                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(i);
-            }
-        }
+                if (focus == 1 && duration > screen_appear_threshold) {
+                    Log.d(TAG, "The smartphone screen is on (timer expired)");
+                    Intent i = new Intent(context, LockScreen.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(i);
+                }
+                break;
+            case Intent.ACTION_SCREEN_OFF:
+                //SharedPreferences pref_other = context.getSharedPreferences("OtherApp",Context.MODE_PRIVATE);
+                int flag = sharedPrefModes.getInt("Flag", -1);
+                //int otherApp = pref_other.getInt("OtherApp",-1);
 
-        if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-            //SharedPreferences pref_other = context.getSharedPreferences("OtherApp",Context.MODE_PRIVATE);
-            int flag = sharedPref.getInt("Flag", -1);
-            //int otherApp = pref_other.getInt("OtherApp",-1);
+                sharedPrefModesEditor.putInt("Typing", 0);
+                sharedPrefModesEditor.apply();
 
-            sharedPrefEditor.putInt("Typing", 0);
-            sharedPrefEditor.apply();
+                Log.d(TAG, "Smartphone screen is OFF: " + String.valueOf(flag));
 
-            Log.d(TAG, "Smartphone screen is OFF: " + String.valueOf(flag));
-
-            if (flag != 1 || focus == 0) { // 만약에 잠금 화면에서 화면이 꺼진 것이라면 reset하지 않는다. 그리고 timer가 trigger되지 않았으면.
-                final Intent intentService = new Intent(context, CountService.class);
-                sharedPrefEditor.putInt("Flag", 0);
-                sharedPrefEditor.apply();
-                context.stopService(intentService);
-                context.startService(intentService);
-            }
+                if (flag != 1 || focus == 0) { // 만약에 잠금 화면에서 화면이 꺼진 것이라면 reset하지 않는다. 그리고 timer가 trigger되지 않았으면.
+                    sharedPrefModesEditor.putInt("Flag", 0);
+                    sharedPrefModesEditor.apply();
+                    final Intent intentService = new Intent(context, CountService.class);
+                    context.stopService(intentService);
+                    context.startService(intentService);
+                }
 
             /*
             if(otherApp == 1 && focus == 0){
@@ -90,32 +89,32 @@ public class ScreenReceiver extends BroadcastReceiver {
             editor_other.putInt("OtherApp",0);
             editor_other.commit();
             */
-        }
+                break;
+            case "kr.ac.kaist.lockscreen.shake":
+                Log.d(TAG, "Shake (movement detected)");
+                PowerManager powerManager = (PowerManager) context.getSystemService(POWER_SERVICE);
 
-        if (intent.getAction().equals("kr.ac.kaist.lockscreen.shake")) {
-            Log.d(TAG, "Shake (movement detected)");
-            PowerManager powerManager = (PowerManager) context.getSystemService(POWER_SERVICE);
+                boolean isInteractive = false;
+                if (powerManager != null) {
+                    isInteractive = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH && powerManager.isInteractive() || Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH && powerManager.isScreenOn();
+                }
 
-            boolean isInteractive = false;
-            if (powerManager != null) {
-                isInteractive = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH && powerManager.isInteractive() || Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH && powerManager.isScreenOn();
-            }
-
-            //State Type 1 -> movement
-            if (focus == 1 && !isInteractive) {
-                calStart.setTimeInMillis(start_time);
-                calEnd.setTimeInMillis(end_time);
-
-                db = new DatabaseHelper(context); //reinit DB
-                submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) duration, (short) 1, "", "", "");
-            }
-
-
-        }
-
-        if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
-            Intent i = new Intent(context, CountService.class);
-            context.startService(i);
+                Log.e(TAG, "Focus Mode Flag second: " + focus);
+                Log.e(TAG, "Interaction Flag second: " + isInteractive);
+                //State Type 1 -> movement
+                if (focus == 1 && !isInteractive) {
+                    calStart.setTimeInMillis(start_time);
+                    calEnd.setTimeInMillis(end_time);
+                    db = new DatabaseHelper(context); //reinit DB
+                    submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) duration, (short) 1, "", "", "");
+                }
+                break;
+            case Intent.ACTION_BOOT_COMPLETED:
+                Intent i = new Intent(context, CountService.class);
+                context.startService(i);
+                break;
+            default:
+                break;
         }
     }
 
@@ -147,21 +146,18 @@ public class ScreenReceiver extends BroadcastReceiver {
                     PHPRequest request;
                     try {
                         request = new PHPRequest(url);
-                        String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, "", activity_txt, "", String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(otherESMResp)); //TODO: remove empty strings for icons
+                        String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, String.valueOf(""), activity_txt, String.valueOf(""), String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(otherESMResp)); //TODO: remove empty strings for icons
+                        Log.e(TAG, "result: " + result);
                         if (result == null) {
                             boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_txt, activity_txt, otherESMResp);
-
                             if (isInserted) {
                                 Log.d(TAG, "State saved to local");
                             } else
                                 Log.d(TAG, "Failed to save to local");
-
-                            restartServiceAndGoHome();
                         } else {
                             switch (result) {
                                 case Tools.RES_OK:
                                     Log.d(TAG, "Submitted");
-                                    restartServiceAndGoHome();
                                     try {
                                         Thread.sleep(500);
                                     } catch (InterruptedException e) {
@@ -189,21 +185,20 @@ public class ScreenReceiver extends BroadcastReceiver {
             boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_txt, activity_txt, otherESMResponse);
 
             if (isInserted) {
-                Toast.makeText(context, "State saved", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "State saved in local");
             } else
-                Toast.makeText(context, "Failed to save", Toast.LENGTH_SHORT).show();
-
-            restartServiceAndGoHome();
+                Log.d(TAG, "Failed to save state in local");
 
         }
-        sharedPrefEditor.putInt("Flag", 0);
-        sharedPrefEditor.apply();
+        restartServiceAndGoHome();
+        sharedPrefModesEditor.putInt("Flag", 0);
+        sharedPrefModesEditor.apply();
     }
 
     public void restartServiceAndGoHome() {
 
-        sharedPrefEditor.putInt("FocusMode", 0);
-        sharedPrefEditor.apply();
+        sharedPrefModesEditor.putInt("FocusMode", 0);
+        sharedPrefModesEditor.apply();
 
         final Intent intentService = new Intent(context, CountService.class);
         context.stopService(intentService);
