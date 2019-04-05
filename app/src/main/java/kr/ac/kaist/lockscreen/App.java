@@ -15,9 +15,10 @@ public class App extends Application {
     private SharedPreferences sharedPrefModes = null;
     private SharedPreferences.Editor sharedPrefModesEditor = null;
 
-    public static final int trigger_duration_in_second = 3;
-    public static final int screen_appear_threshold = 0;
-    public static final int notification_pass_time_limit = 5;
+    public static final int trigger_duration_in_second = 30; //in sec
+    public static final int screen_appear_threshold = 5; //in sec
+    public static final int notification_pass_time_limit = 40; //in sec
+    public static final int service_heartbeat_period = 50; //in sec
 
     @Override
     public void onCreate() {
@@ -26,7 +27,7 @@ public class App extends Application {
 
         sharedPrefModes = getSharedPreferences("Modes", Activity.MODE_PRIVATE);
         sharedPrefModesEditor = sharedPrefModes.edit();
-
+        //region Init shared pref for survey response counter
         Calendar curDate = Calendar.getInstance();
         sharedPrefModesEditor.putLong("Surveys_cnt_date", curDate.getTimeInMillis());
         sharedPrefModesEditor.apply();
@@ -34,6 +35,12 @@ public class App extends Application {
         sharedPrefModesEditor.apply();
         sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", 0);
         sharedPrefModesEditor.apply();
+        //endregion
+
+        //region Init shared pref for heartbeat sending to server
+        sharedPrefModesEditor.putInt("Heartbeat_sent", 0);
+        sharedPrefModesEditor.apply();
+        //endregion
     }
 
     private void createNotificationChannels() {

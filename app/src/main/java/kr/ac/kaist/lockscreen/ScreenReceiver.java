@@ -38,6 +38,7 @@ public class ScreenReceiver extends BroadcastReceiver {
 
 
         int focus = sharedPrefModes.getInt("FocusMode", -1);
+        int shaked = sharedPrefModes.getInt("Shaked", -1);
 
         Calendar calStart = Calendar.getInstance();
         Calendar calEnd = Calendar.getInstance();
@@ -99,10 +100,8 @@ public class ScreenReceiver extends BroadcastReceiver {
                     isInteractive = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH && powerManager.isInteractive() || Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH && powerManager.isScreenOn();
                 }
 
-                Log.e(TAG, "Focus Mode Flag second: " + focus);
-                Log.e(TAG, "Interaction Flag second: " + isInteractive);
                 //State Type 1 -> movement
-                if (focus == 1 && !isInteractive) {
+                if (focus == 1 && !isInteractive && shaked == 1) {
                     calStart.setTimeInMillis(start_time);
                     calEnd.setTimeInMillis(end_time);
                     db = new DatabaseHelper(context); //reinit DB

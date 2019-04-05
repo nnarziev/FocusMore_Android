@@ -1,6 +1,7 @@
 package kr.ac.kaist.lockscreen;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -23,6 +24,7 @@ import java.util.Calendar;
 
 import static kr.ac.kaist.lockscreen.App.CHANNEL_1_ID;
 import static kr.ac.kaist.lockscreen.App.notification_pass_time_limit;
+import static kr.ac.kaist.lockscreen.App.service_heartbeat_period;
 import static kr.ac.kaist.lockscreen.App.trigger_duration_in_second;
 
 public class CountService extends Service implements SensorEventListener {
@@ -81,7 +83,6 @@ public class CountService extends Service implements SensorEventListener {
         sharedPrefLaterState = getSharedPreferences("LaterState", Activity.MODE_PRIVATE);
         sharedPrefLaterStateEditor = sharedPrefLaterState.edit();
 
-        Log.d(TAG, "startService time: " + String.valueOf(sharedPrefModes.getInt("StartService", -1)));
         sharedPrefModesEditor.putInt("StartService", (int) (System.currentTimeMillis() / 1000));
         sharedPrefModesEditor.apply();
 
@@ -160,7 +161,6 @@ public class CountService extends Service implements SensorEventListener {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            Log.d(TAG, "Sending movement broadcast");
             sendBroadcast(new Intent("kr.ac.kaist.lockscreen.shake"));
         }
     }
@@ -191,6 +191,17 @@ public class CountService extends Service implements SensorEventListener {
             while (!isStop) {
                 int currentTime = (int) (System.currentTimeMillis() / 1000);
 
+                //region Sending periodical Heartbeat to server
+                //if the current time is more than heartbeat sent time + 30min (1800 sec) than send heartbeat to server
+                if (currentTime > sharedPrefModes.getInt("Heartbeat_sent", -1) + service_heartbeat_period) {
+                    Log.e(TAG, "Sending Heartbeat . . . " + currentTime);
+                    sendHeartBeatToServer((long) currentTime * 1000);
+                    sharedPrefModesEditor.putInt("Heartbeat_sent", currentTime);
+                    sharedPrefModesEditor.apply();
+                }
+                //endregion
+
+                //region Handle the delayed survey notification here
                 //if delayed lockscreen notification is not pressed within 5 minutes then save state Type 2 -> cancel
                 long time_difference = (Calendar.getInstance().getTimeInMillis() / 1000) - (sharedPrefLaterState.getLong("Timestamp", -1) / 1000);
                 if (sharedPrefLaterState.getInt("Time_Passed", -1) == 0) {
@@ -209,6 +220,7 @@ public class CountService extends Service implements SensorEventListener {
                         sharedPrefModesEditor.apply();
                     }
                 }
+                //endregion
 
                 try {
                     Thread.sleep(1000);
@@ -281,7 +293,6 @@ public class CountService extends Service implements SensorEventListener {
 
                             restartService();
                         } else {
-                            Log.d(TAG, "Result notif: " + result);
                             switch (result) {
                                 case Tools.RES_OK:
                                     Log.d(TAG, "Submitted");
@@ -321,6 +332,52 @@ public class CountService extends Service implements SensorEventListener {
 
     }
 
+    public void sendHeartBeatToServer(long timestamp) {
+        if (Tools.isNetworkAvailable(this)) {
+            Log.d(TAG, "With connection case");
+            Tools.executeForService(new MyServiceRunnable(
+                    getString(R.string.url_server, getString(R.string.server_ip)),
+                    SignInActivity.loginPrefs.getString(SignInActivity.email, null),
+                    timestamp
+            ) {
+                @Override
+                public void run() {
+                    String url = (String) args[0];
+                    String email = (String) args[1];
+                    long timestamp = (long) args[2];
+
+                    PHPRequest request;
+                    try {
+                        request = new PHPRequest(url);
+                        String result = request.PhPtest(PHPRequest.SERV_CODE_SEND_HB, email, String.valueOf(timestamp), "", "", "", "", "", "", "", ""); //TODO: remove empty strings for icons
+                        if (result == null) {
+                            Log.e(TAG, "Failed to send heartbeat (Server error)");
+                        } else {
+                            switch (result) {
+                                case Tools.RES_OK:
+                                    Log.d(TAG, "Sent");
+                                    break;
+                                case Tools.RES_FAIL:
+                                    Log.d(TAG, "Failed to submit");
+                                    break;
+                                case Tools.RES_SRV_ERR:
+                                    Log.d(TAG, "Failed to sign up. (SERVER SIDE ERROR)");
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } else {
+            Log.d(TAG, "Internet is not availabel to send heartbeat to server");
+        }
+    }
+
     public void restartService() {
 
         //region Restart the service
@@ -332,6 +389,7 @@ public class CountService extends Service implements SensorEventListener {
         //endregion
 
     }
+
 }
 
 

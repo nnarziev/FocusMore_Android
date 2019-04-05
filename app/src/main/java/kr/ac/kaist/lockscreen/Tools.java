@@ -196,7 +196,8 @@ class PHPRequest {
             SERV_CODE_SIGN_UP = "0",
             SERV_CODE_SIGN_IN = "1",
             SERV_CODE_SHOW_RD = "2",
-            SERV_CODE_ADD_RD = "4";
+            SERV_CODE_ADD_RD = "4",
+            SERV_CODE_SEND_HB = "5";
 
     PHPRequest(String url) throws MalformedURLException {
         this.url = new URL(url);

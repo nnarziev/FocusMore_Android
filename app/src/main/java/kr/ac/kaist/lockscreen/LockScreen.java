@@ -756,10 +756,10 @@ public class LockScreen extends AppCompatActivity {
 
         isStop = true;
 
-        /*
-        editor_typing.putInt("Typing", 1);
-        editor_typing.commit();
-        */
+
+        sharedPrefModesEditor.putInt("Typing", 1);
+        sharedPrefModesEditor.apply();
+
 
         sharedPrefModesEditor.putInt("Shaked", 0);
         sharedPrefModesEditor.apply();
