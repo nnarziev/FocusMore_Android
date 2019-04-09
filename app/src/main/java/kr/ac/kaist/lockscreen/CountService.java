@@ -1,7 +1,6 @@
 package kr.ac.kaist.lockscreen;
 
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -14,8 +13,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -130,7 +131,7 @@ public class CountService extends Service implements SensorEventListener {
             mReceiver = new ScreenReceiver();
             registerReceiver(mReceiver, filter);
         }
-        return START_REDELIVER_INTENT;
+        return START_STICKY;
     }
 
     @Override
@@ -156,11 +157,8 @@ public class CountService extends Service implements SensorEventListener {
             sharedPrefModesEditor.apply();
 
             shake_time = (int) (System.currentTimeMillis() / 1000);
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
+            Log.e(TAG, "onSensorChanged: " + "sending broadcast");
             sendBroadcast(new Intent("kr.ac.kaist.lockscreen.shake"));
         }
     }

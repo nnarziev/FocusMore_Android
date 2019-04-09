@@ -4,8 +4,11 @@ import android.app.Activity;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.util.Log;
+import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -18,29 +21,52 @@ public class App extends Application {
     public static final int trigger_duration_in_second = 30; //in sec
     public static final int screen_appear_threshold = 5; //in sec
     public static final int notification_pass_time_limit = 40; //in sec
-    public static final int service_heartbeat_period = 50; //in sec
+    public static final int service_heartbeat_period = 1800; //in sec
+
+    public static App instance;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         createNotificationChannels();
 
         sharedPrefModes = getSharedPreferences("Modes", Activity.MODE_PRIVATE);
         sharedPrefModesEditor = sharedPrefModes.edit();
+
         //region Init shared pref for survey response counter
-        Calendar curDate = Calendar.getInstance();
-        sharedPrefModesEditor.putLong("Surveys_cnt_date", curDate.getTimeInMillis());
-        sharedPrefModesEditor.apply();
-        sharedPrefModesEditor.putInt("Total_responded_surveys_cnt", 0);
-        sharedPrefModesEditor.apply();
-        sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", 0);
-        sharedPrefModesEditor.apply();
+        if (sharedPrefModes.contains("Total_responded_surveys_cnt") && sharedPrefModes.contains("Total_displayed_surveys_cnt")) {
+            if (sharedPrefModes.getInt("Total_responded_surveys_cnt", 0) != 0 && sharedPrefModes.getInt("Total_displayed_surveys_cnt", 0) != 0) {
+                sharedPrefModesEditor.putInt("Total_responded_surveys_cnt", sharedPrefModes.getInt("Total_responded_surveys_cnt", 0));
+                sharedPrefModesEditor.apply();
+                sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", sharedPrefModes.getInt("Total_displayed_surveys_cnt", 0));
+                sharedPrefModesEditor.apply();
+            }
+        } else {
+            Calendar curDate = Calendar.getInstance();
+            sharedPrefModesEditor.putLong("Surveys_cnt_date", curDate.getTimeInMillis());
+            sharedPrefModesEditor.apply();
+            sharedPrefModesEditor.putInt("Total_responded_surveys_cnt", 0);
+            sharedPrefModesEditor.apply();
+            sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", 0);
+            sharedPrefModesEditor.apply();
+
+        }
         //endregion
 
         //region Init shared pref for heartbeat sending to server
         sharedPrefModesEditor.putInt("Heartbeat_sent", 0);
         sharedPrefModesEditor.apply();
         //endregion
+    }
+
+    @Override
+    public Context getApplicationContext() {
+        return super.getApplicationContext();
+    }
+
+    public static App getInstance() {
+        return instance;
     }
 
     private void createNotificationChannels() {

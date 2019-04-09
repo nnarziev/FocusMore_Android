@@ -216,6 +216,11 @@ public class LockScreen extends AppCompatActivity {
             sharedPrefModesEditor.apply();
             sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", 0);
             sharedPrefModesEditor.apply();
+        } else {
+            sharedPrefModesEditor.putInt("Total_responded_surveys_cnt", sharedPrefModes.getInt("Total_responded_surveys_cnt", 0));
+            sharedPrefModesEditor.apply();
+            sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", sharedPrefModes.getInt("Total_displayed_surveys_cnt", 0));
+            sharedPrefModesEditor.apply();
         }
 
         int total_responded = sharedPrefModes.getInt("Total_responded_surveys_cnt", -1);
@@ -654,6 +659,7 @@ public class LockScreen extends AppCompatActivity {
                     try {
                         request = new PHPRequest(url);
                         String result = request.PhPtest(PHPRequest.SERV_CODE_ADD_RD, email, String.valueOf(type), location_txt, String.valueOf(""), activity_txt, String.valueOf(""), String.valueOf(start_time), String.valueOf(end_time), String.valueOf(duration), String.valueOf(otherESMResp)); //TODO: remove empty strings for icons
+                        Log.e(TAG, "Result: " + result);
                         if (result == null) {
                             boolean isInserted = db.insertRawData(start_time, end_time, duration, type, location_txt, activity_txt, otherESMResp);
                             Log.d(TAG, "Case when Server is OFF");
@@ -885,6 +891,7 @@ public class LockScreen extends AppCompatActivity {
                             calEnd.setTimeInMillis(end_time);
 
                             db = new DatabaseHelper(LockScreen.this); //reinit DB
+                            Log.e(TAG, "Submitting type 1 after notification was pressed");
                             submitRawData(calStart.getTimeInMillis(), calEnd.getTimeInMillis(), (int) (duration / 1000), (short) 1, "", "", "");  //submit raw data when notification is clicked
                             sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", sharedPrefModes.getInt("Total_displayed_surveys_cnt", -1) + 1);
                             sharedPrefModesEditor.apply();
@@ -902,5 +909,6 @@ public class LockScreen extends AppCompatActivity {
 
         super.onUserLeaveHint();
     }
+
 
 }

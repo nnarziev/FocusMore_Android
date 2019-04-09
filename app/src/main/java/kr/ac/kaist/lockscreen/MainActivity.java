@@ -47,6 +47,11 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (getIntent().getBooleanExtra("RequestToFinish_FromScreenReceiver", false)) {
+            finish();
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setActionBar((Toolbar) findViewById(R.id.my_toolbar));
         }
@@ -54,6 +59,8 @@ public class MainActivity extends Activity {
         //init DB
         DatabaseHelper myDb = new DatabaseHelper(this);
         myDb.testDB();
+
+        Thread.setDefaultUncaughtExceptionHandler(new MyExceptionHandler(this));
 
         //region If the user did not turn the notification listener service on we prompt him to do so
         if (!isNotificationServiceEnabled()) {
@@ -110,6 +117,11 @@ public class MainActivity extends Activity {
             sharedPrefModesEditor.putInt("Total_responded_surveys_cnt", 0);
             sharedPrefModesEditor.apply();
             sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", 0);
+            sharedPrefModesEditor.apply();
+        } else {
+            sharedPrefModesEditor.putInt("Total_responded_surveys_cnt", sharedPrefModes.getInt("Total_responded_surveys_cnt", 0));
+            sharedPrefModesEditor.apply();
+            sharedPrefModesEditor.putInt("Total_displayed_surveys_cnt", sharedPrefModes.getInt("Total_displayed_surveys_cnt", 0));
             sharedPrefModesEditor.apply();
         }
 

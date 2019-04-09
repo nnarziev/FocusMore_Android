@@ -2,9 +2,12 @@ package kr.ac.kaist.lockscreen;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Application;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -278,7 +281,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("create table " + RAW_DATA_TABLE + "(" + RD_COL_1 + " INTEGER PRIMARY KEY, " + RD_COL_2 + " INTEGER, " + RD_COL_3 + " INTEGER, " + RD_COL_4 + " INTEGER, " + RD_COL_5 + " TEXT, " + RD_COL_6 + " TEXT, " + RD_COL_7 + " TEXT " + ")");
 
         //region Initialize default values in user data DB
-        ArrayList<String> locationsTitleDef = new ArrayList<>(Arrays.asList("Home", "School", "Office", "Library", "Cafe", "Restaurant"));
+        ArrayList<String> locationsTitleDef = new ArrayList<>(Arrays.asList("기숙사", "강의실", " 학교식당", "헬스장"));
 
         for (int i = 0; i < locationsTitleDef.size(); i++) {
             long itemId = System.currentTimeMillis();
@@ -297,7 +300,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
         }
 
-        ArrayList<String> activitiesTitleDef = new ArrayList<>(Arrays.asList("Study", "Eat", "Work", "Rest", "Sleep", "Workout", "Communicate"));
+        ArrayList<String> activitiesTitleDef = new ArrayList<>(Arrays.asList("수면", "수업", "식사", "헬스"));
 
         for (int i = 0; i < activitiesTitleDef.size(); i++) {
             long itemId = System.currentTimeMillis();
@@ -590,97 +593,23 @@ class HistoryListDataModel {
 
 }
 
-class State {
+class MyExceptionHandler implements Thread.UncaughtExceptionHandler {
+    private Activity activity;
 
-    //region Constants
-    static final short TYPE_1 = 1;
-    static final short TYPE_2 = 2;
-    static final short TYPE_3 = 3;
-    //endregion
-
-    //region Variables
-    private String user_id;
-    private Calendar start_time;
-    private Calendar end_time;
-    private int duration;
-    private short type;
-    private String location;
-    private String activity;
-    private short distraction;
-    //endregion
-
-    public State(String user_id, Calendar start_time, Calendar end_time, int duration, short type, String location, String activity, short distraction) {
-        this.user_id = user_id;
-        this.start_time = start_time;
-        this.end_time = end_time;
-        this.duration = duration;
-        this.type = type;
-        this.location = location;
-        this.activity = activity;
-        this.distraction = distraction;
+    MyExceptionHandler(Activity a) {
+        activity = a;
     }
 
-    public String getUser_id() {
-        return user_id;
-    }
-
-    public void setUser_id(String user_id) {
-        this.user_id = user_id;
-    }
-
-    public Calendar getStart_time() {
-        return start_time;
-    }
-
-    public void setStart_time(Calendar start_time) {
-        this.start_time = start_time;
-    }
-
-    public Calendar getEnd_time() {
-        return end_time;
-    }
-
-    public void setEnd_time(Calendar end_time) {
-        this.end_time = end_time;
-    }
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
-    public short getType() {
-        return type;
-    }
-
-    public void setType(short type) {
-        this.type = type;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getActivity() {
-        return activity;
-    }
-
-    public void setActivity(String activity) {
-        this.activity = activity;
-    }
-
-    public short getDistraction() {
-        return distraction;
-    }
-
-    public void setDistraction(short distraction) {
-        this.distraction = distraction;
+    @Override
+    public void uncaughtException(Thread thread, Throwable ex) {
+        Intent intent = new Intent(activity, SignInActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_CLEAR_TASK
+                | Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(App.getInstance().getBaseContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        AlarmManager mgr = (AlarmManager) App.getInstance().getBaseContext().getSystemService(Context.ALARM_SERVICE);
+        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, pendingIntent);
+        activity.finish();
+        System.exit(2);
     }
 }

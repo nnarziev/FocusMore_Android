@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.util.Log;
 
 import java.net.MalformedURLException;
@@ -23,15 +24,17 @@ public class ConnectionReceiver extends BroadcastReceiver {
         myDb = new DatabaseHelper(context);
         //myDb.testDB();
 
-        if (Tools.isNetworkAvailable(context)) {
-            try {
-                Log.d(TAG, "Network is connected");
-                submitRDFromDB();
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+            if (Tools.isNetworkAvailable(context)) {
+                try {
+                    Log.d(TAG, "Network is connected");
+                    submitRDFromDB();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Log.d(TAG, "Network is changed or reconnected");
             }
-        } else {
-            Log.d(TAG, "Network is changed or reconnected");
         }
     }
 
