@@ -18,9 +18,9 @@ public class App extends Application {
     private SharedPreferences sharedPrefModes = null;
     private SharedPreferences.Editor sharedPrefModesEditor = null;
 
-    public static final int trigger_duration_in_second = 30; //in sec
-    public static final int screen_appear_threshold = 5; //in sec
-    public static final int notification_pass_time_limit = 40; //in sec
+    public static final int trigger_duration_in_second = 180; //in sec
+    public static final int screen_appear_threshold = 2; //in sec
+    public static final int notification_pass_time_limit = 300; //in sec
     public static final int service_heartbeat_period = 1800; //in sec
 
     public static App instance;
